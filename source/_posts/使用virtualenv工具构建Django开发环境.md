@@ -15,7 +15,7 @@ description:
 这种情况下，每个应用最好需要各自拥有一套独立的Python运行环境。virtualenv就是用来为一个应用创建一套隔离的独立的的Python运行环境。
 
 <!--more-->
-## 1、安装virtualenv
+## 安装virtualenv
 
 直接在系统默认的python环境下安装virtualenv，因为virtualenv也是python的一个包。
 
@@ -24,7 +24,7 @@ description:
 pip install virtualenv
 ```
 
-## 2、创建独立运行环境
+## 创建独立运行环境
 
 假定我们要开发一个新项目(基于Django1.10.6和anaconda3的web项目)，需要一套独立的运行环境，可以这么做：
 1. 第一步：创建目录
