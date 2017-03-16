@@ -21,7 +21,7 @@ description:
 
 ## 个人PC
 
-### a) 在github上新建远程仓库
+### 在github上新建远程仓库
 
 将原来的page项目删除，新建一个和原来名字一样的空项目。不用初始README.md
 此时只有一个空的master分支。
@@ -53,7 +53,7 @@ description:
 
 
 
-### b) 初始化一个Hexo项目
+### 本地初始化一个Hexo项目
 
 新建一个空目录，作为你的博客目录。进入该目录，右击`Git bash here`，初始化一个Hexo项目：
 ```
@@ -63,7 +63,7 @@ npm install hexo-deployer-git --save
 ```
 然后用自己原来博客里的文件替换掉这里的`source\`, `scaffolds\`, `themes\`, `_config.yml`替换成自己原来博客里的。注意，这里把`themes/jacman`中的`.git/`目录删除，否则下面推送到hexo分支后jacman为空。这也是众多坑中的一个，由于水平有限具体原因不是很清楚，只能瞎猫碰上死耗子啦。
 
-### c) 将整个目录推送到master
+### 将整个目录推送到master
  
 要推送到master分支，首先要将该目录初始化为本地Git仓库：
 ```
@@ -76,7 +76,7 @@ git commit -m "first add hexo source code"
 git push origin master
 ```
 
-### d) 在github上新建一个分支
+### 在github上新建一个分支
 
 新建一个分支hexo(名字可以自定义)，这时候hexo分支和master分支的内容一样，都是hexo的源文件。
 
@@ -88,7 +88,7 @@ git push origin master
 
 
 
-### e) 部署博客
+### 部署博客
 
 还是和以前一样：
 ```
@@ -118,7 +118,7 @@ hexo g -d
 **注意：根目录下的`_config.yml`配置文件中branch一定要填master，否则`hexo d`就会部署到hexo分支下。**
 
 
-### f) 关联到远程hexo分支
+### 关联到远程hexo分支
 
 在本地新建一个hexo分支并与远程hexo分支关联：
 ```
