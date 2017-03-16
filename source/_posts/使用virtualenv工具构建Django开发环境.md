@@ -1,7 +1,7 @@
 ---
 title: 使用virtualenv工具构建Django开发环境
 date: 2017-03-15 23:52:18
-tags: Python;Virtualenv
+tags: - Python - Virtualenv
 categories: Python学习之路
 description:
 ---
