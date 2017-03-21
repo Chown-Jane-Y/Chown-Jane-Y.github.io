@@ -2,17 +2,16 @@
 title: Web服务编程——REST与SOAP比较
 date: 2017-03-21 09:48:07
 tags: REST
-categories: 关于Web
+categories: 
 description:
 ---
 
 
 
->REST 架构风格是一种全新的针对 Web 应用的开发风格，与 RPC 风格的 Web 服务（关于 RPC 风格的 Web 服务描述，请参见 Wikipeida ）一样，是企业信息化的一个重要架构实践领域。本文从一个简单的应用场景出发，使用 REST 和 SOAP 两种不同的架构风格实现，通过对 REST 与 SOAP Web 服务具体对比，旨在帮助读者更深刻理解 REST 架构风格。
+REST 架构风格是一种全新的针对 Web 应用的开发风格，与 RPC 风格的 Web 服务（关于 RPC 风格的 Web 服务描述，请参见 Wikipeida ）一样，是企业信息化的一个重要架构实践领域。本文从一个简单的应用场景出发，使用 REST 和 SOAP 两种不同的架构风格实现，通过对 REST 与 SOAP Web 服务具体对比，旨在帮助读者更深刻理解 REST 架构风格。
 
 
 <!--more-->
----
 
 ## REST 简介
 
