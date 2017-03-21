@@ -17,7 +17,7 @@ ansible是基于模块工作的，本身没有批量部署的能力。**真正�
 
 ## Ansible基础安装
 
-####(1) python2.7安装
+### (1) python2.7安装
 https://www.python.org/ftp/python/2.7.8/Python-2.7.8.tgz
 ```
 # tar xvzf Python-2.7.8.tgz
@@ -38,7 +38,7 @@ https://www.python.org/ftp/python/2.7.8/Python-2.7.8.tgz
 
 
 
-#### (2) setuptools模块安装
+### (2) setuptools模块安装
 https://pypi.python.org/packages/source/s/setuptools/setuptools-7.0.tar.gz
 ```
 # tar xvzf setuptools-7.0.tar.gz
@@ -46,7 +46,7 @@ https://pypi.python.org/packages/source/s/setuptools/setuptools-7.0.tar.gz
 # python setup.py install
 ```
 
-#### (3) pycrypto模块安装
+### (3) pycrypto模块安装
 https://pypi.python.org/packages/source/p/pycrypto/pycrypto-2.6.1.tar.gz
 ```
 # tar xvzf pycrypto-2.6.1.tar.gz
@@ -54,7 +54,7 @@ https://pypi.python.org/packages/source/p/pycrypto/pycrypto-2.6.1.tar.gz
 # python setup.py install
 ```
 
-#### (4) PyYAML模块安装
+### (4) PyYAML模块安装
 http://pyyaml.org/download/libyaml/yaml-0.1.5.tar.gz
 ```
 # tar xvzf yaml-0.1.5.tar.gz
@@ -71,7 +71,7 @@ https://pypi.python.org/packages/source/P/PyYAML/PyYAML-3.11.tar.gz
 # python setup.py install
 ```
 
-#### (5) Jinja2模块安装
+### (5) Jinja2模块安装
 https://pypi.python.org/packages/source/M/MarkupSafe/MarkupSafe-0.9.3.tar.gz
 ```
 # tar xvzf MarkupSafe-0.9.3.tar.gz
@@ -86,7 +86,7 @@ https://pypi.python.org/packages/source/J/Jinja2/Jinja2-2.7.3.tar.gz
 # python setup.py install
 ```
 
-#### (6) paramiko模块安装
+### (6) paramiko模块安装
 https://pypi.python.org/packages/source/e/ecdsa/ecdsa-0.11.tar.gz
 ```
 # tar xvzf ecdsa-0.11.tar.gz
@@ -101,7 +101,7 @@ https://pypi.python.org/packages/source/p/paramiko/paramiko-1.15.1.tar.gz
 # python setup.py install
 ```
 
-#### (7) simplejson模块安装
+### (7) simplejson模块安装
 https://pypi.python.org/packages/source/s/simplejson/simplejson-3.6.5.tar.gz
 ```
 # tar xvzf simplejson-3.6.5.tar.gz
@@ -109,7 +109,7 @@ https://pypi.python.org/packages/source/s/simplejson/simplejson-3.6.5.tar.gz
 # python setup.py install
 ```
 
-#### (8) ansible安装
+### (8) ansible安装
 https://github.com/ansible/ansible/archive/v1.7.2.tar.gz
 ```
 # tar xvzf ansible-1.7.2.tar.gz
@@ -119,7 +119,7 @@ https://github.com/ansible/ansible/archive/v1.7.2.tar.gz
 
 ## Ansible配置
 
-#### (1) SSH免密钥登录设置
+### (1) SSH免密钥登录设置
 
 ① 生成公钥/私钥
 ```
@@ -138,7 +138,7 @@ cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 chmod 600 /root/.ssh/authorized_keys
 ```
 
-#### (2) ansible配置
+### (2) ansible配置
 修改配置文件`ansible.cfg`
 ```
 $ mkdir -p /etc/ansible
@@ -164,7 +164,7 @@ private_key_file = /root/.ssh/id_rsa
 10.39.117.11
 ```
 
-#### (3) 测试
+### (3) 测试
 ```powershell
 [root@caojiayu bin] ansible test_cluster -m command -a 'uptime'
 10.39.117.10 | SUCCESS | rc=0 >>
