@@ -43,13 +43,11 @@ Scripts\activate     //激活该环境
 (venv_anaconda3_django1.10.6) D:\PyWorkspace\my_first_django>pip install django==1.10.6
 ```
 执行`activate`脚本后，才能进入该虚拟环境，前面会有`(venv_anaconda3_django1.10.6)`前缀，表示已经在该环境下。接着在该环境下`pip install`你想要的第三方包，不会影响其他的运行环境。
-
 4. 第四步：创建Django项目
 ```
 (venv_anaconda3_django1.10.6)D:\PyWorkspace\my_first_django> django-admin startproject my_first_django
 ```
 在`env_anaconda3_django1.10.6`环境下，用pip安装的包都被安装到`env_anaconda3_django1.10.6`这个环境下，系统Python环境不受任何影响。也就是说，`env_anaconda3_django1.10.6`环境是专门针对my_first_django这个项目创建的。接着就可以在这个环境中进行该项目的开发，不会影响其他的项目。
-
 5. 第五步：退出该环境
 ```
 Scripts\deactivate
