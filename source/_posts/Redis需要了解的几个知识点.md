@@ -25,7 +25,7 @@ description:
 (4) 丰富的特性：可用于缓存，消息，按key设置过期时间，过期后将会自动删除
 
 
-## redis常见性能问题和解决方案：
+## redis常见性能问题和解决方案
 
 1) Master写内存快照，save命令调度rdbSave函数，会阻塞主线程的工作，当快照比较大时对性能影响是非常大的，会间断性暂停服务，所以Master最好不要写内存快照。
 
@@ -37,7 +37,7 @@ description:
 
 5) 尽量避免在压力很大的主库上增加从库
 
-6) 主从复制不要用图状结构，用单向链表结构更为稳定，即：$Master <- Slave1 <- Slave2 <- Slave3...$。这样的结构方便解决单点故障问题，实现Slave对Master的替换。如果Master挂了，可以立刻启用Slave1做Master，其他不变。
+6) 主从复制不要用图状结构，用单向链表结构更为稳定，即：`Master <- Slave1 <- Slave2 <- Slave3...`。这样的结构方便解决单点故障问题，实现Slave对Master的替换。如果Master挂了，可以立刻启用Slave1做Master，其他不变。
 
 
 ## MySQL里有2000w数据，redis中只存20w的数据，如何保证redis中的数据都是热点数据
