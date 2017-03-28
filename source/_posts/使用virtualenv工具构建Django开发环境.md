@@ -36,7 +36,7 @@ mkdir my_django_web
 第二步：创建一个独立的python运行环境，这里根据需求命名为`env_anaconda3_django1.10.6`：
 ```java
 cd my_django_web   //进入项目目录
-virtualenv --no-site-packages env_anaconda3_django1.10.6  //创建虚拟环境，且系统的第三方包不会复制过来
+virtualenv --no-site-packages env_anaconda3_django1.10.6 -p c:\Python27\python.exe //创建虚拟环境，指定为python2.7版本，且原来的第三方包不会复制过来
 ```
 
 第三步：在该环境下安装Django-1.10.6
