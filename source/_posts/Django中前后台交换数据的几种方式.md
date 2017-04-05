@@ -5,11 +5,9 @@ tags:
 categories:
 description:
 ---
-
 Django中前台HTML页面如何接收来自后台的数据并显示？
 
 <!--more-->
-
 ## 返回HTML页面
 
 这是最简单的后台向前台传送数据的方式：
@@ -37,16 +35,17 @@ def main_page(request):
 ```
 
 前台HTML中，用``{{ data }}``来获取数据。这里的`data`和`views.py`中`{'data': data}`的单引号内的名称相同。
-```
+```vbscript-html
 <div>{{ data }}</div>
 ```
+
 如果传回的是可迭代的数据类型，也可以在前台中进行迭代：
-```
+```vbscript-html
 {% for item in data%}
 <p>{{ item }}</p>
 {% endfor %}
 ```
-`{% %}`这是Django模板中的语法，用于简单的循环或条件语句。
+
 
 
 ## views >>> Javascript
@@ -113,7 +112,5 @@ function getSceneId(scece_name, td) {
 JS 发送ajax请求，后台处理请求并返回`status`, `result`
 在` success:` 后面定义回调函数处理返回的数据，需要使用 `JSON.parse(data)`
 
+
 <!--more-->
-
-
-
