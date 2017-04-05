@@ -1,11 +1,12 @@
 ---
 title: Django中前后台交换数据的几种方式
-date: 2017-04-05 15:03:59
+date: 2017-04-05 15:14:52
 tags:
 categories:
 description:
 ---
 
+Django中前台HTML页面如何接收来自后台的数据并显示？
 
 <!--more-->
 
@@ -113,7 +114,6 @@ JS 发送ajax请求，后台处理请求并返回`status`, `result`
 在` success:` 后面定义回调函数处理返回的数据，需要使用 `JSON.parse(data)`
 
 <!--more-->
-
 
 
 
