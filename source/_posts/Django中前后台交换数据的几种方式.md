@@ -1,6 +1,6 @@
 ---
 title: Django中前后台交换数据的几种方式
-date: 2017-04-01 15:00:12
+date: 2017-04-05 15:00:12
 tags: Django
 categories: 被解放的Django
 description:
