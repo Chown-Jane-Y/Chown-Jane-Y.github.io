@@ -1,8 +1,8 @@
 ---
 title: Django中前后台交换数据的几种方式
 date: 2017-04-05 15:14:52
-tags:
-categories:
+tags: Django
+categories: 被解放的Django
 description:
 ---
 Django中前台HTML页面如何接收来自后台的数据并显示？
