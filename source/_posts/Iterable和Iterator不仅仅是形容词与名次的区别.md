@@ -40,6 +40,8 @@ isinstance( (x for x in range(10)), Iterator)  --> True
 
 集合数据类型如`list`, `tuple`, `dict`, `str`，都是可迭代的但不是跌带起，但可以通过`iter()`函数来获得一个Iterator对象。
 
+![IterableToIterator](http://i4.buimg.com/588729/b8e0e155ecd0440f.png)
+
 **Python中的for循环就是通过next实现的**
 ```python
 for x in [1,2,3,4,5]:  
