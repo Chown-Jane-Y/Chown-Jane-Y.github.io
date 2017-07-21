@@ -96,10 +96,9 @@
     <div class="article-content">
         
         <a id="more"></a>
-<h2 id="Ceph的组成"><a href="#Ceph的组成" class="headerlink" title="Ceph的组成"></a>Ceph的组成</h2><p><img src="./1500603967859.png" alt="Alt text"></p>
+<h2 id="Ceph的组成"><a href="#Ceph的组成" class="headerlink" title="Ceph的组成"></a>Ceph的组成</h2><p><img src="http://i1.buimg.com/588729/fab1fdcf433af561.png" alt="ceph-component"></p>
 <h2 id="为什么要rbd-mirror"><a href="#为什么要rbd-mirror" class="headerlink" title="为什么要rbd-mirror"></a>为什么要rbd-mirror</h2><p>Ceph采用的是<strong>强一致性同步模型</strong>，所有副本都必须完成写操作才算一次写入成功，一个请求需要异地返回再确认完成，如果副本在异地，网络延迟就会很大，拖垮整个集群的写性能。因此，Ceph集群很少有跨域部署的，也就缺乏异地容灾。</p>
 <p>于是从2015年增加了一个新功能——RBD Mirror，用以解决两个集群间异步备份的问题。</p>
-<p><img src="./1500435676686.png" alt="Alt text"></p>
 <h2 id="rbd-mirror设计原则"><a href="#rbd-mirror设计原则" class="headerlink" title="rbd-mirror设计原则"></a>rbd-mirror设计原则</h2><ol>
 <li>Replication needs to be asynchronous</li>
 </ol>
@@ -124,7 +123,7 @@
 <h2 id="rbd-mirror的原理"><a href="#rbd-mirror的原理" class="headerlink" title="rbd-mirror的原理"></a>rbd-mirror的原理</h2><p>RBD Mirror原理其实<strong>和MySQL的主从同步原理非常类似，前者基于journaling，后者基于binlog，简单地说就是利用日志进行回放(replay)</strong>：通过在存储系统中增加Mirror组件，采用异步复制的方式，实现异地备份。(此处的journal是指Ceph RBD的journal，而不是OSD的journal)</p>
 <p>该能力利用了 RBD image 的日志特性，以确保集群间的副本崩溃一致性。镜像功能需要在同伴集群（ peer clusters ）中的每一个对应的 pool 上进行配置，可设定自动备份某个存储池内的所有 images 或仅备份 images 的一个特定子集。 rbd-mirror 守护进程负责从远端集群拉取 image 的更新，并写入本地集群的对应 image 中。</p>
 <p>当RBD Journal功能打开后，所有的数据更新请求会<strong>先写入RBD Journal</strong>，然后后台线程再把数据从Journal区域刷新到对应的image区域。RBD journal提供了比较完整的日志记录、读取、变更通知以及日志回收和空间释放等功能，可以认为是一个分布式的日志系统。</p>
-<p><img src="./rbd-mirror.png" alt="Alt text"></p>
+<p><img src="http://i1.buimg.com/588729/e703bff60b686f0a.png" alt="principle"></p>
 <p>上图是<strong>rbd-mirror的工作流程</strong>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">1、当接收到一个写入请求后，I/O会先写入主集群的Image Journal</div><div class="line"></div><div class="line">2、Journal写入成功后，通知客户端</div><div class="line"></div><div class="line">3、客户端得到响应后，开始写入image</div><div class="line"></div><div class="line">3、备份集群的mirror进程发现主集群的Journal有更新后，从主集群的Journal读取数据，写入备份集群（和上面序号一样，是因为这两个过程同时发生）</div><div class="line"></div><div class="line">4、备份集群写入成功后，会更新主集群Journal中的元数据，表示该I/O的Journal已经同步完成</div><div class="line"></div><div class="line">5、主集群会定期检查，删除已经写入备份集群的Journal数据。</div></pre></td></tr></table></figure></p>
 <p>以上就是一个rbd-mirror工作周期内的流程，在现有的Jewel版本中30s为一次工作周期，暂时不能改变这个周期时间。</p>
 <h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><p> 1、当副本在异地的情况下，减少了单个集群不同节点间的数据写入延时；</p>
