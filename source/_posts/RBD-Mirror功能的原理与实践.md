@@ -11,12 +11,6 @@ description:
 
 
 
-
-
-<!-- more -->
-
-
-
 ## Ceph的组成
 
 ![ceph-component](http://i1.buimg.com/588729/fab1fdcf433af561.png)
@@ -28,6 +22,7 @@ description:
 
 
 
+<!-- more -->
 
 ## 为什么要rbd-mirror
 
@@ -172,7 +167,7 @@ e1: 1 mons at {remote1=192.10.10.174:6789/0}, election epoch 3, quorum 0 remote1
 
 
 
-###3、创建存储池
+### 3、创建存储池
 
 创建一个用于测试的存储池：
 ```powershell
