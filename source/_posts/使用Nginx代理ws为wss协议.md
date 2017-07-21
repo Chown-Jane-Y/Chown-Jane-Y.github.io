@@ -7,7 +7,7 @@ description:
 ---
 
 
-https站点中只能使用wss协议(WebsocketSecure)，需要通过nginx进行一个协议代理，实现ws到wss的转换。
+由于https站点中只能使用wss协议(WebsocketSecure)，需要通过nginx进行一个协议代理，实现ws到wss的转换。
 
 <!-- more -->
 
