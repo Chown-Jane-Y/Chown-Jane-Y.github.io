@@ -19,8 +19,7 @@ description:
 
 ## Ceph的组成
 
-![Alt text](./1500603967859.png)
-
+![ceph-component](http://i1.buimg.com/588729/fab1fdcf433af561.png)
 
 
 
@@ -36,9 +35,6 @@ description:
 Ceph采用的是**强一致性同步模型**，所有副本都必须完成写操作才算一次写入成功，一个请求需要异地返回再确认完成，如果副本在异地，网络延迟就会很大，拖垮整个集群的写性能。因此，Ceph集群很少有跨域部署的，也就缺乏异地容灾。
 
 于是从2015年增加了一个新功能——RBD Mirror，用以解决两个集群间异步备份的问题。
-
-
-![Alt text](./1500435676686.png)
 
 
 
@@ -67,7 +63,7 @@ RBD Mirror原理其实**和MySQL的主从同步原理非常类似，前者基于
 
 
 
-![Alt text](./rbd-mirror.png)
+![principle](http://i1.buimg.com/588729/e703bff60b686f0a.png)
 
 
 
