@@ -1,0 +1,567 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>如何在不同电脑上同时写hexo博客？ | 狗几</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="曹嘉宇">
+    
+
+    
+    <meta name="description" content="相信很多人都有这样的困扰，我在家里搭了hexo博客，配置了很久主题、样式等等，到了公司，想在公司写博客的时候，发现无从下手。从github上pull下来的都是静态文件，无法在原有的基础上继续进行博客编辑。我查阅了网上的资料，但是严格按网上的步骤没有成功，遇到很多坑，自己摸索了一套做法。但是核心思想没有改变，还是利用github的多分支功能。">
+<meta name="keywords" content="Hexo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何在不同电脑上同时写hexo博客？">
+<meta property="og:url" content="http://yoursite.com/2017/03/15/如何在不同电脑上同时写hexo博客？/index.html">
+<meta property="og:site_name" content="狗几">
+<meta property="og:description" content="相信很多人都有这样的困扰，我在家里搭了hexo博客，配置了很久主题、样式等等，到了公司，想在公司写博客的时候，发现无从下手。从github上pull下来的都是静态文件，无法在原有的基础上继续进行博客编辑。我查阅了网上的资料，但是严格按网上的步骤没有成功，遇到很多坑，自己摸索了一套做法。但是核心思想没有改变，还是利用github的多分支功能。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://i1.piimg.com/567571/a6819846da4f4161.png">
+<meta property="og:image" content="http://p1.bqimg.com/567571/55eb9c7965c09fe1.png">
+<meta property="og:image" content="http://p1.bqimg.com/567571/487c8ebac1d11706.png">
+<meta property="og:updated_time" content="2017-07-21T05:39:42.258Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何在不同电脑上同时写hexo博客？">
+<meta name="twitter:description" content="相信很多人都有这样的困扰，我在家里搭了hexo博客，配置了很久主题、样式等等，到了公司，想在公司写博客的时候，发现无从下手。从github上pull下来的都是静态文件，无法在原有的基础上继续进行博客编辑。我查阅了网上的资料，但是严格按网上的步骤没有成功，遇到很多坑，自己摸索了一套做法。但是核心思想没有改变，还是利用github的多分支功能。">
+<meta name="twitter:image" content="http://i1.piimg.com/567571/a6819846da4f4161.png">
+
+    
+    <link rel="alternative" href="/atom.xml" title="狗几" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.png">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="狗几" title="狗几"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="狗几">狗几</a></h1>
+				<h2 class="blog-motto">新手程序员，正在学习Python，欢迎交流。</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:yoursite.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/03/15/如何在不同电脑上同时写hexo博客？/" title="如何在不同电脑上同时写hexo博客？" itemprop="url">如何在不同电脑上同时写hexo博客？</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-03-15T03:04:24.000Z" itemprop="datePublished"> 发表于 2017-03-15</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#个人PC"><span class="toc-number">1.</span> <span class="toc-text">个人PC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#在github上新建远程仓库"><span class="toc-number">1.1.</span> <span class="toc-text">在github上新建远程仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#本地初始化一个Hexo项目"><span class="toc-number">1.2.</span> <span class="toc-text">本地初始化一个Hexo项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#将整个目录推送到master"><span class="toc-number">1.3.</span> <span class="toc-text">将整个目录推送到master</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在github上新建一个分支"><span class="toc-number">1.4.</span> <span class="toc-text">在github上新建一个分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#部署博客"><span class="toc-number">1.5.</span> <span class="toc-text">部署博客</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关联到远程hexo分支"><span class="toc-number">1.6.</span> <span class="toc-text">关联到远程hexo分支</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#工作PC"><span class="toc-number">2.</span> <span class="toc-text">工作PC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#将博客项目克隆下来"><span class="toc-number">2.1.</span> <span class="toc-text">将博客项目克隆下来</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#新建一篇文章测试"><span class="toc-number">2.2.</span> <span class="toc-text">新建一篇文章测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#日常操作"><span class="toc-number">3.</span> <span class="toc-text">日常操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#写博客前"><span class="toc-number">3.1.</span> <span class="toc-text">写博客前</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#写博客"><span class="toc-number">3.2.</span> <span class="toc-text">写博客</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#写完博客"><span class="toc-number">3.3.</span> <span class="toc-text">写完博客</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>相信很多人都有这样的困扰，我在家里搭了hexo博客，配置了很久主题、样式等等，到了公司，想在公司写博客的时候，发现无从下手。从github上pull下来的都是静态文件，无法在原有的基础上继续进行博客编辑。我查阅了网上的资料，但是严格按网上的步骤没有成功，遇到很多坑，自己摸索了一套做法。但是核心思想没有改变，还是利用github的多分支功能。</p>
+<a id="more"></a>
+<p>一般情况下，hexo部署到github上的都是静态文件，即生成好的html文件。也就是说，如果pull下来，只能得到一些静态页面，而博客的样式或md文件是无法pull下来的。那么在另外一台电脑上进行部署的话，原来的博客样式就会被清空。这是我们不想看到的。</p>
+<p>也有一种比较原始的办法，就是把该项目的目录完整拷贝一份，在不同机器上都粘贴一份。然后通过手动备份，保持不同电脑上文章目录同步(否则在不同电脑上部署会导致原来写的文章没有了)。虽然可以实现需求，但是确实有点麻烦，也没有真正利用到github。</p>
+<p>为了完美解决这个问题，可以<strong>利用github的不同分支来分别保存网站静态文件与hexo源码（md原始文件及主题等）</strong>，实现在不同电脑上都可以自由写博客。</p>
+<p>本文是建立在你已有hexo博客的情况下，教你如何把它迁移到另外一台电脑上，使两台电脑同时可以进行博客部署。下面就具体讲解一下如何实现吧！</p>
+<p><em>注：假设你有工作PC和个人PC，你原有的博客搭建在个人PC上，以下首先介绍个人PC上的操作步骤。</em></p>
+<h2 id="个人PC"><a href="#个人PC" class="headerlink" title="个人PC"></a>个人PC</h2><h3 id="在github上新建远程仓库"><a href="#在github上新建远程仓库" class="headerlink" title="在github上新建远程仓库"></a>在github上新建远程仓库</h3><p>将原来的page项目删除，新建一个和原来名字一样的空项目。不用初始README.md<br>此时只有一个空的master分支。</p>
+<p>本地的目录不要动，到时候需要用你原来博客的配置和文章替换该项目中的文件夹。你可以把你本地的博客目录复制一份作为备份，以免误操作将原来的内容进行改动。</p>
+<p><img src="http://i1.piimg.com/567571/a6819846da4f4161.png" alt=""></p>
+<h3 id="本地初始化一个Hexo项目"><a href="#本地初始化一个Hexo项目" class="headerlink" title="本地初始化一个Hexo项目"></a>本地初始化一个Hexo项目</h3><p>新建一个空目录，作为你的博客目录。进入该目录，右击<code>Git bash here</code>，初始化一个Hexo项目：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">hexo init</div><div class="line">npm install</div><div class="line">npm install hexo-deployer-git --save</div></pre></td></tr></table></figure></p>
+<p>然后用自己原来博客里的文件替换掉这里的<code>source\</code>, <code>scaffolds\</code>, <code>themes\</code>, <code>_config.yml</code>替换成自己原来博客里的。注意，这里把<code>themes/jacman</code>中的<code>.git/</code>目录删除，否则下面推送到hexo分支后jacman为空。这也是众多坑中的一个，由于水平有限具体原因不是很清楚，只能瞎猫碰上死耗子啦。</p>
+<h3 id="将整个目录推送到master"><a href="#将整个目录推送到master" class="headerlink" title="将整个目录推送到master"></a>将整个目录推送到master</h3><p>要推送到master分支，首先要将该目录初始化为本地Git仓库：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">git init</div><div class="line"> </div><div class="line">//把博客目录下所有文件推送到master分支</div><div class="line">git remote add origin git@github:chown-jane-y/chown-jane-y.github.io.git</div><div class="line">git add .</div><div class="line">git commit -m &quot;first add hexo source code&quot;</div><div class="line">git push origin master</div></pre></td></tr></table></figure></p>
+<h3 id="在github上新建一个分支"><a href="#在github上新建一个分支" class="headerlink" title="在github上新建一个分支"></a>在github上新建一个分支</h3><p>新建一个分支hexo(名字可以自定义)，这时候hexo分支和master分支的内容一样，都是hexo的源文件。</p>
+<p>并把hexo设为默认分支，这样的话在另外一台机器上克隆下来就直接进入hexo分支，并且以后所有操作都是在hexo分支下完成。</p>
+<p>为什么需要这个额外的分支呢？</p>
+<p>因为<code>hexo d</code>只把静态网页文件部署到master分支上，所以你换了另外一台电脑，就无法pull下来继续写博客了。有了hexo分支的话，就可以把hexo分支中的源文件(配置文件、主题样式等)pull下来，再<code>hexo g</code>的话就可以生成一模一样的静态文件了。</p>
+<h3 id="部署博客"><a href="#部署博客" class="headerlink" title="部署博客"></a>部署博客</h3><p>还是和以前一样：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">hexo g -d</div></pre></td></tr></table></figure></p>
+<p>博客已经成功部署到master分支，这时候到github查看两个分支的内容，hexo分支里是源文件，master里是静态文件。<br><img src="http://p1.bqimg.com/567571/55eb9c7965c09fe1.png" alt=""></p>
+<p><img src="http://p1.bqimg.com/567571/487c8ebac1d11706.png" alt=""></p>
+<p><strong>注意：根目录下的<code>_config.yml</code>配置文件中branch一定要填master，否则<code>hexo d</code>就会部署到hexo分支下。</strong></p>
+<h3 id="关联到远程hexo分支"><a href="#关联到远程hexo分支" class="headerlink" title="关联到远程hexo分支"></a>关联到远程hexo分支</h3><p>在本地新建一个hexo分支并与远程hexo分支关联：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">git checkout -b hexo</div><div class="line">git pull origin hexo</div></pre></td></tr></table></figure></p>
+<p>另外别忘了，如果有修改的话，要推送到hexo分支上去：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">git add .</div><div class="line">git commit -m  &quot;&quot;</div><div class="line">git push origin hexo</div></pre></td></tr></table></figure></p>
+<p>这样才能在另外的机器上pull下来，保持同步。</p>
+<h2 id="工作PC"><a href="#工作PC" class="headerlink" title="工作PC"></a>工作PC</h2><p>个人PC上的工作已经完成了，下面讲一下如果你换到了另外一台电脑上，应该如何操作。</p>
+<h3 id="将博客项目克隆下来"><a href="#将博客项目克隆下来" class="headerlink" title="将博客项目克隆下来"></a>将博客项目克隆下来</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git clone git@github.com:chown-jane-y/chown-jane-y.github.io.git</div></pre></td></tr></table></figure>
+<p>克隆下来的仓库和你在个人PC中的目录是一模一样的，所以可以在这基础上继续写博客了。但是由于<code>.gitignore</code>文件中过滤了<code>node_modules\</code>，所以克隆下来的目录里没有<code>node_modules\</code>，这是hexo所需要的组件，所以要在该目录中重新安装hexo，<strong>但不需要<code>hexo init</code></strong>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">npm install hexo</div><div class="line">npm install</div><div class="line">npm install hexo-deployer-git --save</div></pre></td></tr></table></figure></p>
+<h3 id="新建一篇文章测试"><a href="#新建一篇文章测试" class="headerlink" title="新建一篇文章测试"></a>新建一篇文章测试</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">hexo new &quot;work PC test&quot;</div></pre></td></tr></table></figure>
+<p>推送到hexo分支<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">git add .</div><div class="line">git commit -m &quot;add work PC test&quot;</div><div class="line">git push origin hexo</div></pre></td></tr></table></figure></p>
+<p>部署到master分支<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">hexo g -d</div></pre></td></tr></table></figure></p>
+<h2 id="日常操作"><a href="#日常操作" class="headerlink" title="日常操作"></a>日常操作</h2><p>如果上面的过程都操作无误的话，你就可以在任何能联网的电脑上写博客啦。一般写博客的流程是下面这样。</p>
+<h3 id="写博客前"><a href="#写博客前" class="headerlink" title="写博客前"></a>写博客前</h3><p>不管你本地的仓库是否是最新的，都先pull一下，以防万一：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git pull origin hexo</div></pre></td></tr></table></figure></p>
+<p>把最新的pull下来，再开始撰写新的博客。</p>
+<h3 id="写博客"><a href="#写博客" class="headerlink" title="写博客"></a>写博客</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">hexo new &quot;title&quot;</div></pre></td></tr></table></figure>
+<p>然后打开<code>source/_posts/title.md</code>，撰写博文。</p>
+<h3 id="写完博客"><a href="#写完博客" class="headerlink" title="写完博客"></a>写完博客</h3><p>先推送到hexo分支上：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">git add .</div><div class="line">git commit -m &quot;add article xxx&quot;</div><div class="line">git push origin hexo</div></pre></td></tr></table></figure></p>
+<p>最后部署到master分支上：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">hexo g -d</div></pre></td></tr></table></figure></p>
+<p>整个流程大概就是这样。</p>
+<!--more-->
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/博客搭建/">博客搭建</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Hexo/">Hexo</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	<div class="share-jiathis">
+	  
+<div class="jiathis_style_24x24">
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_googleplus"></a>
+	<a class="jiathis_button_douban"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=2126358
+2126358" charset="utf-8"></script>      
+
+	 </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/03/15/使用virtualenv工具构建Django开发环境/" title="使用virtualenv工具构建Django开发环境">
+  <strong>上一篇：</strong><br/>
+  <span>
+  使用virtualenv工具构建Django开发环境</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/03/02/一网打尽-原码、反码与补码/"  title="一网打尽 原码、反码与补码">
+ <strong>下一篇：</strong><br/> 
+ <span>一网打尽 原码、反码与补码
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2017/03/15/如何在不同电脑上同时写hexo博客？/" data-title="如何在不同电脑上同时写hexo博客？" data-url="http://yoursite.com/2017/03/15/如何在不同电脑上同时写hexo博客？/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#个人PC"><span class="toc-number">1.</span> <span class="toc-text">个人PC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#在github上新建远程仓库"><span class="toc-number">1.1.</span> <span class="toc-text">在github上新建远程仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#本地初始化一个Hexo项目"><span class="toc-number">1.2.</span> <span class="toc-text">本地初始化一个Hexo项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#将整个目录推送到master"><span class="toc-number">1.3.</span> <span class="toc-text">将整个目录推送到master</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在github上新建一个分支"><span class="toc-number">1.4.</span> <span class="toc-text">在github上新建一个分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#部署博客"><span class="toc-number">1.5.</span> <span class="toc-text">部署博客</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关联到远程hexo分支"><span class="toc-number">1.6.</span> <span class="toc-text">关联到远程hexo分支</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#工作PC"><span class="toc-number">2.</span> <span class="toc-text">工作PC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#将博客项目克隆下来"><span class="toc-number">2.1.</span> <span class="toc-text">将博客项目克隆下来</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#新建一篇文章测试"><span class="toc-number">2.2.</span> <span class="toc-text">新建一篇文章测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#日常操作"><span class="toc-number">3.</span> <span class="toc-text">日常操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#写博客前"><span class="toc-number">3.1.</span> <span class="toc-text">写博客前</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#写博客"><span class="toc-number">3.2.</span> <span class="toc-text">写博客</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#写完博客"><span class="toc-number">3.3.</span> <span class="toc-text">写完博客</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Hexo/" title="Hexo">Hexo<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Redis/" title="Redis">Redis<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Django/" title="Django">Django<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/REST/" title="REST">REST<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Ansible/" title="Ansible">Ansible<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/RBD-Mirror/" title="RBD-Mirror">RBD-Mirror<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/补码/" title="补码">补码<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/通信机制/" title="通信机制">通信机制<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Virtualenv/" title="Virtualenv">Virtualenv<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/callback/" title="callback">callback<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/互联网协议/" title="互联网协议">互联网协议<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Ceph/" title="Ceph">Ceph<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python学习之路/" title="Python学习之路">Python学习之路<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python部落刷题宝/" title="Python部落刷题宝">Python部落刷题宝<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/博客搭建/" title="博客搭建">博客搭建<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/被解放的Django/" title="被解放的Django">被解放的Django<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/计算机基础/" title="计算机基础">计算机基础<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+	<iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=0&isWeibo=0&isFans=0&uid=2826271411&verifier=e270a789&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Gocjy <br/>
+			人类的悲欢并不相通，我只觉得他们吵闹。</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2826271411" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="曹嘉宇">曹嘉宇</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"chown-jane-y"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

@@ -1,0 +1,544 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Ansible安装与配置(入门) | 狗几</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="曹嘉宇">
+    
+
+    
+    <meta name="description" content="ansible是新出现的自动化运维工具，基于Python开发，集合了众多运维工具（puppet、cfengine、chef、func、fabric）的优点，实现了批量系统配置、批量程序部署、批量运行命令等功能。ansible是基于模块工作的，本身没有批量部署的能力。真正具有批量部署的是ansible所运行的模块，ansible只是提供一种框架。主要包括： 因为现在在做运维，Ansible是必须会的">
+<meta name="keywords" content="Ansible">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ansible安装与配置(入门)">
+<meta property="og:url" content="http://yoursite.com/2017/03/21/Ansible安装与配置-入门/index.html">
+<meta property="og:site_name" content="狗几">
+<meta property="og:description" content="ansible是新出现的自动化运维工具，基于Python开发，集合了众多运维工具（puppet、cfengine、chef、func、fabric）的优点，实现了批量系统配置、批量程序部署、批量运行命令等功能。ansible是基于模块工作的，本身没有批量部署的能力。真正具有批量部署的是ansible所运行的模块，ansible只是提供一种框架。主要包括： 因为现在在做运维，Ansible是必须会的">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-07-21T05:39:42.238Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ansible安装与配置(入门)">
+<meta name="twitter:description" content="ansible是新出现的自动化运维工具，基于Python开发，集合了众多运维工具（puppet、cfengine、chef、func、fabric）的优点，实现了批量系统配置、批量程序部署、批量运行命令等功能。ansible是基于模块工作的，本身没有批量部署的能力。真正具有批量部署的是ansible所运行的模块，ansible只是提供一种框架。主要包括： 因为现在在做运维，Ansible是必须会的">
+
+    
+    <link rel="alternative" href="/atom.xml" title="狗几" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.png">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="狗几" title="狗几"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="狗几">狗几</a></h1>
+				<h2 class="blog-motto">新手程序员，正在学习Python，欢迎交流。</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:yoursite.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/03/21/Ansible安装与配置-入门/" title="Ansible安装与配置(入门)" itemprop="url">Ansible安装与配置(入门)</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-03-21T09:04:35.000Z" itemprop="datePublished"> 发表于 2017-03-21</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Ansible基础安装"><span class="toc-number">1.</span> <span class="toc-text">Ansible基础安装</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-python2-7安装"><span class="toc-number">1.1.</span> <span class="toc-text">(1) python2.7安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-setuptools模块安装"><span class="toc-number">1.2.</span> <span class="toc-text">(2) setuptools模块安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-pycrypto模块安装"><span class="toc-number">1.3.</span> <span class="toc-text">(3) pycrypto模块安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-PyYAML模块安装"><span class="toc-number">1.4.</span> <span class="toc-text">(4) PyYAML模块安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-Jinja2模块安装"><span class="toc-number">1.5.</span> <span class="toc-text">(5) Jinja2模块安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-paramiko模块安装"><span class="toc-number">1.6.</span> <span class="toc-text">(6) paramiko模块安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-simplejson模块安装"><span class="toc-number">1.7.</span> <span class="toc-text">(7) simplejson模块安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-ansible安装"><span class="toc-number">1.8.</span> <span class="toc-text">(8) ansible安装</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ansible配置"><span class="toc-number">2.</span> <span class="toc-text">Ansible配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-SSH免密钥登录设置"><span class="toc-number">2.1.</span> <span class="toc-text">(1) SSH免密钥登录设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-ansible配置"><span class="toc-number">2.2.</span> <span class="toc-text">(2) ansible配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-测试"><span class="toc-number">2.3.</span> <span class="toc-text">(3) 测试</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>ansible是新出现的自动化运维工具，基于Python开发，集合了众多运维工具（puppet、cfengine、chef、func、fabric）的优点，实现了批量系统配置、批量程序部署、批量运行命令等功能。<br>ansible是基于模块工作的，本身没有批量部署的能力。<strong>真正具有批量部署的是ansible所运行的模块，ansible只是提供一种框架</strong>。主要包括：</p>
+<p>因为现在在做运维，Ansible是必须会的。记录一下第一次使用Asible的过程。</p>
+<a id="more"></a>
+<p><em>注：以下环境为CentOS 6.5。</em></p>
+<h2 id="Ansible基础安装"><a href="#Ansible基础安装" class="headerlink" title="Ansible基础安装"></a>Ansible基础安装</h2><h3 id="1-python2-7安装"><a href="#1-python2-7安装" class="headerlink" title="(1) python2.7安装"></a>(1) python2.7安装</h3><p><a href="https://www.python.org/ftp/python/2.7.8/Python-2.7.8.tgz" target="_blank" rel="external">https://www.python.org/ftp/python/2.7.8/Python-2.7.8.tgz</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"># tar xvzf Python-2.7.8.tgz</div><div class="line"># cd Python-2.7.8</div><div class="line"># ./configure --prefix=/usr/local</div><div class="line"># make --jobs=`grep processor/proc/cpuinfo | wc -l`</div><div class="line"># make install</div></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">// 备份旧版本的python，并符号链接新版本的python</div><div class="line"></div><div class="line"># cd /usr/bin</div><div class="line"># mv python python2.6</div><div class="line"># ln -s /usr/local/bin/python</div></pre></td></tr></table></figure>
+<h3 id="2-setuptools模块安装"><a href="#2-setuptools模块安装" class="headerlink" title="(2) setuptools模块安装"></a>(2) setuptools模块安装</h3><p><a href="https://pypi.python.org/packages/source/s/setuptools/setuptools-7.0.tar.gz" target="_blank" rel="external">https://pypi.python.org/packages/source/s/setuptools/setuptools-7.0.tar.gz</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"># tar xvzf setuptools-7.0.tar.gz</div><div class="line"># cd setuptools-7.0</div><div class="line"># python setup.py install</div></pre></td></tr></table></figure></p>
+<h3 id="3-pycrypto模块安装"><a href="#3-pycrypto模块安装" class="headerlink" title="(3) pycrypto模块安装"></a>(3) pycrypto模块安装</h3><p><a href="https://pypi.python.org/packages/source/p/pycrypto/pycrypto-2.6.1.tar.gz" target="_blank" rel="external">https://pypi.python.org/packages/source/p/pycrypto/pycrypto-2.6.1.tar.gz</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"># tar xvzf pycrypto-2.6.1.tar.gz</div><div class="line"># cd pycrypto-2.6.1</div><div class="line"># python setup.py install</div></pre></td></tr></table></figure></p>
+<h3 id="4-PyYAML模块安装"><a href="#4-PyYAML模块安装" class="headerlink" title="(4) PyYAML模块安装"></a>(4) PyYAML模块安装</h3><p><a href="http://pyyaml.org/download/libyaml/yaml-0.1.5.tar.gz" target="_blank" rel="external">http://pyyaml.org/download/libyaml/yaml-0.1.5.tar.gz</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"># tar xvzf yaml-0.1.5.tar.gz</div><div class="line"># cd yaml-0.1.5</div><div class="line"># ./configure --prefix=/usr/local</div><div class="line"># make --jobs=`grep processor/proc/cpuinfo | wc -l`</div><div class="line"># make install</div></pre></td></tr></table></figure></p>
+<p><a href="https://pypi.python.org/packages/source/P/PyYAML/PyYAML-3.11.tar.gz" target="_blank" rel="external">https://pypi.python.org/packages/source/P/PyYAML/PyYAML-3.11.tar.gz</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"># tar xvzf PyYAML-3.11.tar.gz</div><div class="line"># cd PyYAML-3.11</div><div class="line"># python setup.py install</div></pre></td></tr></table></figure></p>
+<h3 id="5-Jinja2模块安装"><a href="#5-Jinja2模块安装" class="headerlink" title="(5) Jinja2模块安装"></a>(5) Jinja2模块安装</h3><p><a href="https://pypi.python.org/packages/source/M/MarkupSafe/MarkupSafe-0.9.3.tar.gz" target="_blank" rel="external">https://pypi.python.org/packages/source/M/MarkupSafe/MarkupSafe-0.9.3.tar.gz</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"># tar xvzf MarkupSafe-0.9.3.tar.gz</div><div class="line"># cd MarkupSafe-0.9.3</div><div class="line"># python setup.py install</div></pre></td></tr></table></figure></p>
+<p><a href="https://pypi.python.org/packages/source/J/Jinja2/Jinja2-2.7.3.tar.gz" target="_blank" rel="external">https://pypi.python.org/packages/source/J/Jinja2/Jinja2-2.7.3.tar.gz</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"># tar xvzf Jinja2-2.7.3.tar.gz</div><div class="line"># cd Jinja2-2.7.3</div><div class="line"># python setup.py install</div></pre></td></tr></table></figure></p>
+<h3 id="6-paramiko模块安装"><a href="#6-paramiko模块安装" class="headerlink" title="(6) paramiko模块安装"></a>(6) paramiko模块安装</h3><p><a href="https://pypi.python.org/packages/source/e/ecdsa/ecdsa-0.11.tar.gz" target="_blank" rel="external">https://pypi.python.org/packages/source/e/ecdsa/ecdsa-0.11.tar.gz</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"># tar xvzf ecdsa-0.11.tar.gz</div><div class="line"># cd ecdsa-0.11</div><div class="line"># python setup.py install</div></pre></td></tr></table></figure></p>
+<p><a href="https://pypi.python.org/packages/source/p/paramiko/paramiko-1.15.1.tar.gz" target="_blank" rel="external">https://pypi.python.org/packages/source/p/paramiko/paramiko-1.15.1.tar.gz</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"># tar xvzf paramiko-1.15.1.tar.gz</div><div class="line"># cd paramiko-1.15.1</div><div class="line"># python setup.py install</div></pre></td></tr></table></figure></p>
+<h3 id="7-simplejson模块安装"><a href="#7-simplejson模块安装" class="headerlink" title="(7) simplejson模块安装"></a>(7) simplejson模块安装</h3><p><a href="https://pypi.python.org/packages/source/s/simplejson/simplejson-3.6.5.tar.gz" target="_blank" rel="external">https://pypi.python.org/packages/source/s/simplejson/simplejson-3.6.5.tar.gz</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"># tar xvzf simplejson-3.6.5.tar.gz</div><div class="line"># cd simplejson-3.6.5</div><div class="line"># python setup.py install</div></pre></td></tr></table></figure></p>
+<h3 id="8-ansible安装"><a href="#8-ansible安装" class="headerlink" title="(8) ansible安装"></a>(8) ansible安装</h3><p><a href="https://github.com/ansible/ansible/archive/v1.7.2.tar.gz" target="_blank" rel="external">https://github.com/ansible/ansible/archive/v1.7.2.tar.gz</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"># tar xvzf ansible-1.7.2.tar.gz</div><div class="line"># cd ansible-1.7.2</div><div class="line"># python setup.py install</div></pre></td></tr></table></figure></p>
+<h2 id="Ansible配置"><a href="#Ansible配置" class="headerlink" title="Ansible配置"></a>Ansible配置</h2><h3 id="1-SSH免密钥登录设置"><a href="#1-SSH免密钥登录设置" class="headerlink" title="(1) SSH免密钥登录设置"></a>(1) SSH免密钥登录设置</h3><p>① 生成公钥/私钥<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh-keygen -t rsa -P &apos;&apos;</div></pre></td></tr></table></figure></p>
+<p>② 分发到其他服务器</p>
+<p>将<code>/root/.ssh/id_rsa.pub</code>文件分发到目标服务器上。</p>
+<p>③ 写入信任文件</p>
+<p>在目标服务器上执行：<br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">cat /root/.ssh/id_rsa.pub &gt;&gt; /root/.ssh/authorized_keys</div><div class="line">chmod <span class="number">600</span> /root/.ssh/authorized_keys</div></pre></td></tr></table></figure></p>
+<h3 id="2-ansible配置"><a href="#2-ansible配置" class="headerlink" title="(2) ansible配置"></a>(2) ansible配置</h3><p>修改配置文件<code>ansible.cfg</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ mkdir -p /etc/ansible</div><div class="line"></div><div class="line">$ vim /etc/ansible/ansible.cfg</div><div class="line"></div><div class="line">……</div><div class="line"></div><div class="line">remote_port = 22  //ssh端口</div><div class="line"></div><div class="line">private_key_file = /root/.ssh/id_rsa</div><div class="line"></div><div class="line">……</div></pre></td></tr></table></figure></p>
+<p>主机组定义<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"># vim /etc/ansible/hosts</div><div class="line"></div><div class="line">[test_cluster]</div><div class="line">10.39.117.10</div><div class="line">10.39.117.11</div></pre></td></tr></table></figure></p>
+<h3 id="3-测试"><a href="#3-测试" class="headerlink" title="(3) 测试"></a>(3) 测试</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[root@caojiayu bin] ansible test_cluster -m command -a <span class="string">'uptime'</span></div><div class="line"><span class="number">10.39</span>.<span class="number">117.10</span> | SUCCESS | rc=<span class="number">0</span> &gt;&gt;</div><div class="line"> <span class="number">17</span>:<span class="number">00</span>:<span class="number">07</span> up  <span class="number">2</span>:<span class="number">56</span>,  <span class="number">2</span> users,  load average: <span class="number">0.00</span>, <span class="number">0.00</span>, <span class="number">0.0</span></div></pre></td></tr></table></figure>
+<p>注意，第一次运行时，需要输入一下“yes”【进行公钥验证】，后续无需再次输入。</p>
+<!--more-->  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Ansible/">Ansible</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	<div class="share-jiathis">
+	  
+<div class="jiathis_style_24x24">
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_googleplus"></a>
+	<a class="jiathis_button_douban"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=2126358
+2126358" charset="utf-8"></script>      
+
+	 </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/03/22/如何理解Python中的可变对象与不可变对象/" title="如何理解Python中的可变对象与不可变对象">
+  <strong>上一篇：</strong><br/>
+  <span>
+  如何理解Python中的可变对象与不可变对象</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/03/21/Web服务编程——REST与SOAP比较/"  title="Web服务编程——REST与SOAP比较">
+ <strong>下一篇：</strong><br/> 
+ <span>Web服务编程——REST与SOAP比较
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2017/03/21/Ansible安装与配置-入门/" data-title="Ansible安装与配置(入门)" data-url="http://yoursite.com/2017/03/21/Ansible安装与配置-入门/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Ansible基础安装"><span class="toc-number">1.</span> <span class="toc-text">Ansible基础安装</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-python2-7安装"><span class="toc-number">1.1.</span> <span class="toc-text">(1) python2.7安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-setuptools模块安装"><span class="toc-number">1.2.</span> <span class="toc-text">(2) setuptools模块安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-pycrypto模块安装"><span class="toc-number">1.3.</span> <span class="toc-text">(3) pycrypto模块安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-PyYAML模块安装"><span class="toc-number">1.4.</span> <span class="toc-text">(4) PyYAML模块安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-Jinja2模块安装"><span class="toc-number">1.5.</span> <span class="toc-text">(5) Jinja2模块安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-paramiko模块安装"><span class="toc-number">1.6.</span> <span class="toc-text">(6) paramiko模块安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-simplejson模块安装"><span class="toc-number">1.7.</span> <span class="toc-text">(7) simplejson模块安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-ansible安装"><span class="toc-number">1.8.</span> <span class="toc-text">(8) ansible安装</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ansible配置"><span class="toc-number">2.</span> <span class="toc-text">Ansible配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-SSH免密钥登录设置"><span class="toc-number">2.1.</span> <span class="toc-text">(1) SSH免密钥登录设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-ansible配置"><span class="toc-number">2.2.</span> <span class="toc-text">(2) ansible配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-测试"><span class="toc-number">2.3.</span> <span class="toc-text">(3) 测试</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Hexo/" title="Hexo">Hexo<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Redis/" title="Redis">Redis<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Django/" title="Django">Django<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/REST/" title="REST">REST<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Ansible/" title="Ansible">Ansible<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/RBD-Mirror/" title="RBD-Mirror">RBD-Mirror<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/补码/" title="补码">补码<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/通信机制/" title="通信机制">通信机制<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Virtualenv/" title="Virtualenv">Virtualenv<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/callback/" title="callback">callback<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/互联网协议/" title="互联网协议">互联网协议<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Ceph/" title="Ceph">Ceph<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python学习之路/" title="Python学习之路">Python学习之路<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python部落刷题宝/" title="Python部落刷题宝">Python部落刷题宝<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/博客搭建/" title="博客搭建">博客搭建<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/被解放的Django/" title="被解放的Django">被解放的Django<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/计算机基础/" title="计算机基础">计算机基础<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+	<iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=0&isWeibo=0&isFans=0&uid=2826271411&verifier=e270a789&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Gocjy <br/>
+			人类的悲欢并不相通，我只觉得他们吵闹。</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2826271411" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="曹嘉宇">曹嘉宇</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"chown-jane-y"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

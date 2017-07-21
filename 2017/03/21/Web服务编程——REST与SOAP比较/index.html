@@ -1,0 +1,621 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Web服务编程——REST与SOAP比较 | 狗几</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="曹嘉宇">
+    
+
+    
+    <meta name="description" content="REST 架构风格是一种全新的针对 Web 应用的开发风格，与 RPC 风格的 Web 服务（关于 RPC 风格的 Web 服务描述，请参见 Wikipeida ）一样，是企业信息化的一个重要架构实践领域。本文从一个简单的应用场景出发，使用 REST 和 SOAP 两种不同的架构风格实现，通过对 REST 与 SOAP Web 服务具体对比，旨在帮助读者更深刻理解 REST 架构风格。">
+<meta name="keywords" content="REST">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Web服务编程——REST与SOAP比较">
+<meta property="og:url" content="http://yoursite.com/2017/03/21/Web服务编程——REST与SOAP比较/index.html">
+<meta property="og:site_name" content="狗几">
+<meta property="og:description" content="REST 架构风格是一种全新的针对 Web 应用的开发风格，与 RPC 风格的 Web 服务（关于 RPC 风格的 Web 服务描述，请参见 Wikipeida ）一样，是企业信息化的一个重要架构实践领域。本文从一个简单的应用场景出发，使用 REST 和 SOAP 两种不同的架构风格实现，通过对 REST 与 SOAP Web 服务具体对比，旨在帮助读者更深刻理解 REST 架构风格。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://p1.bpimg.com/588729/42513de91989b6e1.jpg">
+<meta property="og:image" content="http://p1.bpimg.com/588729/b83802e9290f979a.jpg">
+<meta property="og:image" content="http://p1.bpimg.com/588729/c6df3781b3392300.jpg">
+<meta property="og:image" content="http://p1.bpimg.com/588729/e734dec280c5f470.jpg">
+<meta property="og:image" content="http://p1.bpimg.com/588729/4681bbc3ef21851b.jpg">
+<meta property="og:image" content="http://p1.bpimg.com/588729/86e77ec9a9fcc2c9.jpg">
+<meta property="og:image" content="http://p1.bpimg.com/588729/cb1f701b237010b4.jpg">
+<meta property="og:updated_time" content="2017-07-21T05:39:42.251Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Web服务编程——REST与SOAP比较">
+<meta name="twitter:description" content="REST 架构风格是一种全新的针对 Web 应用的开发风格，与 RPC 风格的 Web 服务（关于 RPC 风格的 Web 服务描述，请参见 Wikipeida ）一样，是企业信息化的一个重要架构实践领域。本文从一个简单的应用场景出发，使用 REST 和 SOAP 两种不同的架构风格实现，通过对 REST 与 SOAP Web 服务具体对比，旨在帮助读者更深刻理解 REST 架构风格。">
+<meta name="twitter:image" content="http://p1.bpimg.com/588729/42513de91989b6e1.jpg">
+
+    
+    <link rel="alternative" href="/atom.xml" title="狗几" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.png">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="狗几" title="狗几"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="狗几">狗几</a></h1>
+				<h2 class="blog-motto">新手程序员，正在学习Python，欢迎交流。</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:yoursite.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/03/21/Web服务编程——REST与SOAP比较/" title="Web服务编程——REST与SOAP比较" itemprop="url">Web服务编程——REST与SOAP比较</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-03-21T01:48:07.000Z" itemprop="datePublished"> 发表于 2017-03-21</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#REST-简介"><span class="toc-number">1.</span> <span class="toc-text">REST 简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#应用场景介绍（在线用户管理）"><span class="toc-number">2.</span> <span class="toc-text">应用场景介绍（在线用户管理）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用-REST-实现-Web-服务"><span class="toc-number">3.</span> <span class="toc-text">使用 REST 实现 Web 服务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Restful-Web-服务架构"><span class="toc-number">3.1.</span> <span class="toc-text">Restful Web 服务架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#客户端实现"><span class="toc-number">3.2.</span> <span class="toc-text">客户端实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#服务端实现"><span class="toc-number">3.3.</span> <span class="toc-text">服务端实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用-SOAP-实现-Web-服务"><span class="toc-number">4.</span> <span class="toc-text">使用 SOAP 实现 Web 服务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SOAP-Web-服务架构"><span class="toc-number">4.1.</span> <span class="toc-text">SOAP Web 服务架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#获得用户信息列表"><span class="toc-number">4.2.</span> <span class="toc-text">获得用户信息列表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#获得某一具体用户信息"><span class="toc-number">4.3.</span> <span class="toc-text">获得某一具体用户信息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#REST-与-SOAP-比较"><span class="toc-number">5.</span> <span class="toc-text">REST 与 SOAP 比较</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#接口抽象"><span class="toc-number">5.1.</span> <span class="toc-text">接口抽象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安全控制"><span class="toc-number">5.2.</span> <span class="toc-text">安全控制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关于缓存"><span class="toc-number">5.3.</span> <span class="toc-text">关于缓存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关于连接性"><span class="toc-number">5.4.</span> <span class="toc-text">关于连接性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">6.</span> <span class="toc-text">总结</span></a></li></ol>
+		
+		</div>
+		
+		<p>REST 架构风格是一种全新的针对 Web 应用的开发风格，与 RPC 风格的 Web 服务（关于 RPC 风格的 Web 服务描述，请参见 Wikipeida ）一样，是企业信息化的一个重要架构实践领域。本文从一个简单的应用场景出发，使用 REST 和 SOAP 两种不同的架构风格实现，通过对 REST 与 SOAP Web 服务具体对比，旨在帮助读者更深刻理解 REST 架构风格。</p>
+<a id="more"></a>
+<h2 id="REST-简介"><a href="#REST-简介" class="headerlink" title="REST 简介"></a>REST 简介</h2><p>在开始我们的正式讨论之前，让我们简单看一下 REST 的定义。</p>
+<p>REST（Representational State Transfer）是 Roy Fielding 提出的一个描述互联系统架构风格的名词。为什么称为 REST？Web 本质上由各种各样的资源组成，资源由 URI 唯一标识。<strong>浏览器（或者任何其它类似于浏览器的应用程序）将展示出该资源的一种表现方式，或者一种表现状态</strong>。如果用户在该页面中定向到指向其它资源的链接，则将访问该资源，并表现出它的状态。这意味着<strong>客户端应用程序随着每个资源表现状态的不同而发生状态转移，也即所谓 REST</strong>。</p>
+<p>关于 REST 本身，本文就不再这里过多地讨论，读者可以参考 developerWorks 上其它介绍 REST 的文章。本文的重点在于通过 REST 与 SOAP Web 服务的对比，帮助读者更深刻理解 REST 架构风格的特点，优势。 </p>
+<h2 id="应用场景介绍（在线用户管理）"><a href="#应用场景介绍（在线用户管理）" class="headerlink" title="应用场景介绍（在线用户管理）"></a>应用场景介绍（在线用户管理）</h2><p>本文将借助于一个应用场景，通过基于 REST 和 SOAP Web 服务的不同实现，来对两者进行对比。该应用场景的业务逻辑会尽量保持简单且易于理解，以有助于把我们的重心放在 REST 和 SOAP Web 服务技术特质对比上。</p>
+<p><strong>需求描述</strong><br>这是一个在线的用户管理模块，负责用户信息的创建，修改，删除，查询。用户的信息主要包括：</p>
+<ul>
+<li>用户名（唯一标志在系统中的用户）</li>
+<li>头衔</li>
+<li>公司</li>
+<li>EMAIL</li>
+<li>描述</li>
+</ul>
+<p>需求用例图如下：</p>
+<p><strong>用例图</strong><br><img src="http://p1.bpimg.com/588729/42513de91989b6e1.jpg" alt="UseCase"></p>
+<p>如图所示，客户端 1（Client1）与客户端 2（Client2）对于信息的存取具有不同的权限，客户端 1 可以执行所有的操作，而客户端 2 只被允许执行用户查询（Query User）与用户列表查询（Query User List）。关于这一点，我们在对 REST Web 服务与 SOAP Web 服务安全控制对比时会具体谈到。下面我们将分别向您介绍如何使用 REST 和 SOAP 架构实现 Web 服务。</p>
+<h2 id="使用-REST-实现-Web-服务"><a href="#使用-REST-实现-Web-服务" class="headerlink" title="使用 REST 实现 Web 服务"></a>使用 REST 实现 Web 服务</h2><p>本部分将基于 Restlet 框架来实现该应用。Restlet 为那些要采用 REST 结构体系来构建应用程序的 Java 开发者提供了一个具体的解决方案。关于更多的 Restlet 相关内容，本文不做深入讨论，请见参考资源列表。</p>
+<p><strong>设计</strong><br>我们将采用遵循 REST 设计原则的 ROA（Resource-Oriented Architecture，面向资源的体系架构）进行设计。ROA 是什么？简单点说，ROA 是一种把实际问题转换成 REST 式 Web 服务的方法，它使得 URI、HTTP 和 XML 具有跟其他 Web 应用一样的工作方式。</p>
+<p>在使用 ROA 进行设计时，我们需要把真实的应用需求转化成 ROA 中的资源，基本上遵循以下的步骤：</p>
+<ul>
+<li>分析应用需求中的数据集。</li>
+<li>映射数据集到 ROA 中的资源。</li>
+<li>对于每一资源，命名它的 URI。</li>
+<li>为每一资源设计其 Representations。</li>
+<li>用 hypermedia links 表述资源间的联系。</li>
+</ul>
+<p>接下来我们按照以上的步骤来设计本文的应用案例。</p>
+<p>在线用户管理所涉及的数据集就是用户信息，如果映射到 ROA 资源，主要包括两类资源：用户及用户列表。用户资源的 URI 用 <a href="http://localhost:8182/v1/users/{username}" target="_blank" rel="external">http://localhost:8182/v1/users/{username}</a> 表示，用户列表资源的 URI 用 <a href="http://localhost:8182/v1/users" target="_blank" rel="external">http://localhost:8182/v1/users</a> 表示。它们的 <code>Representation</code> 如下，它们都采用了如清单 1 和清单 2 所示的 XML 表述方式。</p>
+<p>清单 1. 用户列表资源 Representation<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;</div><div class="line"><span class="tag">&lt;<span class="name">users</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">user</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="name">name</span>&gt;</span>tester<span class="tag">&lt;/<span class="name">name</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="name">link</span>&gt;</span>http://localhost:8182/v1/users/tester<span class="tag">&lt;/<span class="name">link</span>&gt;</span></div><div class="line">	<span class="tag">&lt;/<span class="name">user</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">user</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="name">name</span>&gt;</span>tester1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="name">link</span>&gt;</span>http://localhost:8182/v1/users/tester1<span class="tag">&lt;/<span class="name">link</span>&gt;</span></div><div class="line">	<span class="tag">&lt;/<span class="name">user</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">users</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>清单 2. 用户资源 Representation<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;</div><div class="line"><span class="tag">&lt;<span class="name">user</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>tester<span class="tag">&lt;/<span class="name">name</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">title</span>&gt;</span>software engineer<span class="tag">&lt;/<span class="name">title</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">company</span>&gt;</span>IBM<span class="tag">&lt;/<span class="name">company</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">email</span>&gt;</span>tester@cn.ibm.com<span class="tag">&lt;/<span class="name">email</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">description</span>&gt;</span>testing!<span class="tag">&lt;/<span class="name">description</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">user</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>客户端通过 User List Resource 提供的 LINK 信息 ( 如 : <link><a href="http://localhost:8182/v1/users/tester" target="_blank" rel="external">http://localhost:8182/v1/users/tester</a>) 获得具体的某个 USER Resource。</p>
+<h3 id="Restful-Web-服务架构"><a href="#Restful-Web-服务架构" class="headerlink" title="Restful Web 服务架构"></a>Restful Web 服务架构</h3><p>首先给出 Web 服务使用 REST 风格实现的整体架构图，如下图所示：</p>
+<p><strong>REST 实现架构</strong><br><img src="http://p1.bpimg.com/588729/b83802e9290f979a.jpg" alt="RESTarchitecture"></p>
+<p>接下来，我们将基于该架构，使用 Restlet 给出应用的 RESTful Web 服务实现。</p>
+<p>下面的章节中，我们将给出 REST Web 服务实现的核心代码片段。</p>
+<h3 id="客户端实现"><a href="#客户端实现" class="headerlink" title="客户端实现"></a>客户端实现</h3><p>客户端的核心实现部分，其主要由四部分组成：使用 HTTP PUT 增加、修改用户资源，使用 HTTP GET 得到某一具体用户资源，使用 HTTP DELETE 删除用户资源，使用 HTTP GET 得到用户列表资源。而这四部分也正对应了关于架构描述的四对 HTTP 消息来回。</p>
+<p><strong>清单 3. 客户端实现</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserRestHelper</span> </span>&#123;</div><div class="line"><span class="comment">//The root URI of our ROA implementation.</span></div><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> tring APPLICATION_URI = <span class="string">"http://localhost:8182/v1"</span>;</div><div class="line"></div><div class="line"><span class="comment">//Get the URI of user resource by user name. </span></div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> String <span class="title">getUserUri</span><span class="params">(String name)</span> </span>&#123;</div><div class="line">	<span class="keyword">return</span> APPLICATION_URI + <span class="string">"/users/"</span> + name;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//Get the URI of user list resource.</span></div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> String <span class="title">getUsersUri</span><span class="params">()</span> </span>&#123;</div><div class="line">	<span class="keyword">return</span> APPLICATION_URI + <span class="string">"/users"</span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">//Delete user resource from server by user name.</span></div><div class="line"><span class="comment">//使用 HTTP DELETE 方法经由 URI 删除用户资源</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">deleteFromServer</span><span class="params">(String name)</span> </span>&#123;</div><div class="line">	Response response = <span class="keyword">new</span> Client(Protocol.HTTP).delete(getUserUri(name));</div><div class="line">	…… </div><div class="line">&#125;</div><div class="line"><span class="comment">//Put user resource to server.</span></div><div class="line"><span class="comment">//使用 HTTP PUT 方法经由 URI 增加或者修改用户资源</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">putToServer</span><span class="params">(User user)</span> </span>&#123;</div><div class="line">	<span class="comment">//Fill FORM using user data.</span></div><div class="line">	Form form = <span class="keyword">new</span> Form();</div><div class="line"> 	form.add(<span class="string">"user[title]"</span>, user.getTitle());</div><div class="line"> 	form.add(<span class="string">"user[company]"</span>, user.getCompany());</div><div class="line"> 	form.add(<span class="string">"user[email]"</span>, user.getEmail());</div><div class="line"> 	form.add(<span class="string">"user[description]"</span>, user.getDescription());</div><div class="line">	Response putResponse = <span class="keyword">new</span> Client(Protocol.HTTP).put(</div><div class="line">	getUserUri(user.getName()), form.getWebRepresentation());</div><div class="line"> 	……</div><div class="line">&#125;</div><div class="line"><span class="comment">//Output user resource to console.</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">printUser</span><span class="params">(String name)</span> </span>&#123;</div><div class="line">	printUserByURI(getUserUri(name));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//Output user list resource to console.</span></div><div class="line"><span class="comment">//使用 HTTP GET 方法经由 URI 显示用户列表资源</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">printUserList</span><span class="params">()</span> </span>&#123;</div><div class="line">	Response getResponse = <span class="keyword">new</span> Client(Protocol.HTTP).get(getUsersUri());</div><div class="line">	<span class="keyword">if</span> (getResponse.getStatus().isSuccess()) &#123; </div><div class="line">			DomRepresentation result = getResponse.getEntityAsDom();</div><div class="line"> <span class="comment">//The following code line will explore this XML document and output</span></div><div class="line"> <span class="comment">//each user resource to console.</span></div><div class="line">			……</div><div class="line">	&#125; <span class="keyword">else</span> &#123; </div><div class="line">	 	System.out.println(<span class="string">"Unexpected status:"</span>+ getResponse.getStatus()); </div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//Output user resource to console.</span></div><div class="line"><span class="comment">//使用 HTTP GET 方法经由 URI 显示用户资源</span></div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">printUserByURI</span><span class="params">(String uri)</span> </span>&#123; </div><div class="line">	Response getResponse = <span class="keyword">new</span> Client(Protocol.HTTP).get(uri);</div><div class="line">	<span class="keyword">if</span> (getResponse.getStatus().isSuccess()) &#123; </div><div class="line"> 		DomRepresentation result = getResponse.getEntityAsDom();</div><div class="line"> 		<span class="comment">//The following code line will explore this XML document and output</span></div><div class="line"> <span class="comment">//current user resource to console.</span></div><div class="line"> ……</div><div class="line"> 	&#125; <span class="keyword">else</span> &#123; </div><div class="line"> 		System.out.println(<span class="string">"unexpected status:"</span>+ getResponse.getStatus()); </div><div class="line"> 	&#125;</div><div class="line">&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="服务端实现"><a href="#服务端实现" class="headerlink" title="服务端实现"></a>服务端实现</h3><p>清单 4 给出的是服务器端对于用户资源类（UserResourc）的实现，其核心的功能是响应有关用户资源的 HTTP GET/PUT/DELETE 请求，而这些请求响应逻辑正对应了 UserRestHelper 类中关于用户资源类的 HTTP 请求。</p>
+<p><strong>清单 4. 服务器端实现8</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserResource</span> <span class="keyword">extends</span> <span class="title">Resource</span> </span>&#123;</div><div class="line"><span class="keyword">private</span> User _user;</div><div class="line"><span class="keyword">private</span> String _userName;</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">UserResource</span><span class="params">(Context context, Request request, Response response)</span> </span>&#123;</div><div class="line"><span class="comment">//Constructor is here.</span></div><div class="line">……</div><div class="line">&#125;</div><div class="line"><span class="comment">//响应 HTTP DELETE 请求逻辑</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">delete</span><span class="params">()</span> </span>&#123;</div><div class="line">	<span class="comment">// Remove the user from container.</span></div><div class="line">	getContainer().remove(_userName);</div><div class="line"> 	getResponse().setStatus(Status.SUCCESS_OK);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//This method will be called by handleGet.</span></div><div class="line"><span class="function"><span class="keyword">public</span> Representation <span class="title">getRepresentation</span><span class="params">(Variant variant)</span> </span>&#123;</div><div class="line"> Representation result = <span class="keyword">null</span>;</div><div class="line"> <span class="keyword">if</span> (variant.getMediaType().equals(MediaType.TEXT_XML)) &#123;	</div><div class="line"> 	Document doc = createDocument(<span class="keyword">this</span>._user);</div><div class="line"> 	result = <span class="keyword">new</span> DomRepresentation(MediaType.TEXT_XML, doc);</div><div class="line"> &#125;</div><div class="line"> <span class="keyword">return</span> result;</div><div class="line">&#125;</div><div class="line"><span class="comment">//响应 HTTP PUT 请求逻辑。</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(Representation entity)</span> </span>&#123;</div><div class="line"> <span class="keyword">if</span> (getUser() == <span class="keyword">null</span>) &#123;</div><div class="line"> <span class="comment">//The user doesn't exist, create it</span></div><div class="line"> setUser(<span class="keyword">new</span> User());</div><div class="line"> getUser().setName(<span class="keyword">this</span>._userName);</div><div class="line"> getResponse().setStatus(Status.SUCCESS_CREATED);</div><div class="line"> &#125; <span class="keyword">else</span> &#123;</div><div class="line"> 	getResponse().setStatus(Status.SUCCESS_NO_CONTENT);</div><div class="line"> &#125;</div><div class="line"> <span class="comment">//Parse the entity as a Web form.</span></div><div class="line"> Form form = <span class="keyword">new</span> Form(entity);</div><div class="line"> getUser().setTitle(form.getFirstValue(<span class="string">"user[title]"</span>));</div><div class="line"> getUser().setCompany(form.getFirstValue(<span class="string">"user[company]"</span>));</div><div class="line"> getUser().setEmail(form.getFirstValue(<span class="string">"user[email]"</span>));</div><div class="line"> getUser().setDescription(form.getFirstValue(<span class="string">"user[description]"</span>)); </div><div class="line"> <span class="comment">//Put the user to the container.</span></div><div class="line">	getApplication().getContainer().put(_userName, getUser()); </div><div class="line">&#125;</div><div class="line"><span class="comment">//响应 HTTP GET 请求逻辑。</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleGet</span><span class="params">()</span> </span>&#123;</div><div class="line">	<span class="keyword">super</span>.handleGet();</div><div class="line">	<span class="keyword">if</span>(<span class="keyword">this</span>._user != <span class="keyword">null</span> ) &#123;</div><div class="line">	    getResponse().setEntity(getRepresentation(</div><div class="line">	               <span class="keyword">new</span> Variant(MediaType.TEXT_XML)));</div><div class="line">	    getResponse().setStatus(Status.SUCCESS_OK);	</div><div class="line">	&#125; <span class="keyword">else</span> &#123;</div><div class="line">		getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);		</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//build XML document for user resource.</span></div><div class="line"><span class="function"><span class="keyword">private</span> Document <span class="title">createDocument</span><span class="params">(User user)</span> </span>&#123;</div><div class="line"> <span class="comment">//The following code line will create XML document according to user info. </span></div><div class="line">	……</div><div class="line">&#125;</div><div class="line"><span class="comment">//The remaining methods here</span></div><div class="line">……</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>UserResource 类是对用户资源类的抽象，包括了对该资源的创建修改（put 方法），读取（handleGet 方法 ）和删除（delete 方法），被创建出来的 UserResource 类实例被 Restlet 框架所托管，所有操纵资源的方法会在相应的 HTTP 请求到达后被自动回调。</p>
+<p>另外，在服务端，还需要实现代表用户列表资源的资源类 UserListResource，它的实现与 UserResource 类似，响应 HTTP GET 请求，读取当前系统内的所有用户信息，形成如清单 1 所示的用户列表资源 Representation，然后返回该结果给客户端。具体的实现请读者参见本文所附的代码示例。 </p>
+<h2 id="使用-SOAP-实现-Web-服务"><a href="#使用-SOAP-实现-Web-服务" class="headerlink" title="使用 SOAP 实现 Web 服务"></a>使用 SOAP 实现 Web 服务</h2><p>本文对于 SOAP 实现，就不再像 REST 那样，具体到代码级别的实现。本节将主要通过 URI,HTTP 和 XML 来宏观上表述 SOAP Web 服务实现的技术本质，为下一节 REST Web 服务与 SOAP Web 服务的对比做铺垫。</p>
+<h3 id="SOAP-Web-服务架构"><a href="#SOAP-Web-服务架构" class="headerlink" title="SOAP Web 服务架构"></a>SOAP Web 服务架构</h3><p>同样，首先给出 SOAP 实现的整体架构图，如下图所示：</p>
+<p><strong>图 3. SOAP 实现架构</strong><br><img src="http://p1.bpimg.com/588729/c6df3781b3392300.jpg" alt="SOAParchitecture"></p>
+<p>可以看到，与 REST 架构相比，SOAP 架构图明显不同的是：<strong>所有的 SOAP 消息发送都使用 HTTP POST 方法，并且所有 SOAP 消息的 URI 都是一样的</strong>，这是基于 SOAP 的 Web 服务的基本实践特征。</p>
+<h3 id="获得用户信息列表"><a href="#获得用户信息列表" class="headerlink" title="获得用户信息列表"></a>获得用户信息列表</h3><p>基于 SOAP 的客户端创建如清单 5 所示的 SOAP XML 文档，它通过类 RPC 方式来获得用户列表信息。<br><strong>清单5. getUserList SOAP 消息</strong><br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;</div><div class="line"><span class="tag">&lt;<span class="name">soap:Envelope</span> <span class="attr">xmlns:soap</span>=<span class="string">"http://schemas.xmlsoap.org/soap/envelope/"</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">soap:Body</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="name">p:getUserList</span> <span class="attr">xmlns:p</span>=<span class="string">"http://www.exmaple.com"</span>/&gt;</span></div><div class="line">	<span class="tag">&lt;/<span class="name">soap:Body</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">soap:Envelope</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>客户端将使用 HTTP 的 POST 方法，将上述的 SOAP 消息发送至 <a href="http://localhost:8182/v1/soap/servlet/messagerouter" target="_blank" rel="external">http://localhost:8182/v1/soap/servlet/messagerouter</a> URI，SOAP SERVER 收到该 HTTP POST 请求，通过解码 SOAP 消息确定需要调用 <code>getUserList</code> 方法完成该 WEB 服务调用，返回如下的响应：</p>
+<p><strong>清单 6. getUserListResponse 消息</strong><br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;</div><div class="line"><span class="tag">&lt;<span class="name">soap:Envelope</span> <span class="attr">xmlns:soap</span>=<span class="string">"http://schemas.xmlsoap.org/soap/envelope/"</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">soap:Body</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="name">p:get</span></span></div><div class="line">				<span class="attr">UserListResponse</span> <span class="attr">xmlns:p</span>=<span class="string">"http://www.exmaple.com"</span>&gt;</div><div class="line">				<span class="tag">&lt;<span class="name">Users</span>&gt;</span></div><div class="line">				<span class="tag">&lt;<span class="name">username</span>&gt;</span>tester<span class="tag">&lt;<span class="name">username</span>&gt;</span></div><div class="line">				<span class="tag">&lt;<span class="name">username</span>&gt;</span>tester1<span class="tag">&lt;<span class="name">username</span>&gt;</span></div><div class="line">				......</div><div class="line">				<span class="tag">&lt;/<span class="name">Users</span>&gt;</span></div><div class="line">				<span class="tag">&lt;<span class="name">p:</span> <span class="attr">getUserListResponse</span> &gt;</span></div><div class="line">	<span class="tag">&lt;/<span class="name">soap:Body</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">soap:Envelope</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<h3 id="获得某一具体用户信息"><a href="#获得某一具体用户信息" class="headerlink" title="获得某一具体用户信息"></a>获得某一具体用户信息</h3><p><strong>清单 7. getUserByName SOAP 消息</strong><br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;</div><div class="line"><span class="tag">&lt;<span class="name">soap:Envelope</span> <span class="attr">xmlns:soap</span>=<span class="string">"http://schemas.xmlsoap.org/soap/envelope/"</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">soap:Body</span>&gt;</span></div><div class="line">	 <span class="tag">&lt;<span class="name">p:getUserByName</span> <span class="attr">xmlns:p</span>=<span class="string">"http://www.exmaple.com"</span>&gt;</span></div><div class="line">				<span class="tag">&lt;<span class="name">username</span>&gt;</span>tester<span class="tag">&lt;/<span class="name">username</span>&gt;</span></div><div class="line">				<span class="tag">&lt;/<span class="name">p:getUserByName</span> &gt;</span></div><div class="line">	<span class="tag">&lt;/<span class="name">soap:Body</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">soap:Envelope</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>同样地，客户端将使用 HTTP 的 POST 方法，将上述的 SOAP 消息发送至 <a href="http://localhost:8182/v1/soap/servlet/messagerouter" target="_blank" rel="external">http://localhost:8182/v1/soap/servlet/messagerouter</a> URI，SOAP SERVER 处理后返回的 Response 如下：</p>
+<p><strong>清单 8. getUserByNameResponse SOAP 消息</strong><br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;</div><div class="line"><span class="tag">&lt;<span class="name">soap:Envelope</span> <span class="attr">xmlns:soap</span>=<span class="string">"http://schemas.xmlsoap.org/soap/envelope/"</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">soap:Body</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">p:getUserByNameResponse</span> <span class="attr">xmlns:p</span>=<span class="string">"http://www.exmaple.com"</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="name">name</span>&gt;</span>tester<span class="tag">&lt;/<span class="name">name</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="name">title</span>&gt;</span>software engineer<span class="tag">&lt;/<span class="name">title</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="name">company</span>&gt;</span>IBM<span class="tag">&lt;/<span class="name">company</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="name">email</span>&gt;</span>tester@cn.ibm.com<span class="tag">&lt;/<span class="name">email</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="name">description</span>&gt;</span>testing!<span class="tag">&lt;/<span class="name">description</span>&gt;</span></div><div class="line">	<span class="tag">&lt;/<span class="name">p:getUserByNameResponse</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">soap:Body</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">soap:Envelope</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>实际上，创建新的用户，过程也比较类似，在这里，就不一一列出，因为这两个例子对于本文在选定的点上对比 REST 与 SOAP 已经足够了。</p>
+<h2 id="REST-与-SOAP-比较"><a href="#REST-与-SOAP-比较" class="headerlink" title="REST 与 SOAP 比较"></a>REST 与 SOAP 比较</h2><p>本节从以下几个方面来对比上面两节给出 REST 实现与 SOAP 实现。</p>
+<h3 id="接口抽象"><a href="#接口抽象" class="headerlink" title="接口抽象"></a>接口抽象</h3><p>RESTful Web 服务使用标准的 HTTP 方法 (GET/PUT/POST/DELETE) 来抽象所有 Web 系统的服务能力，而不同的是，SOAP 应用都通过定义自己个性化的接口方法来抽象 Web 服务，这更像我们经常谈到的 RPC。例如本例中的 getUserList 与 getUserByName 方法。</p>
+<p>RESTful Web 服务使用标准的 HTTP 方法优势，从大的方面来讲：标准化的 HTTP 操作方法，结合其他的标准化技术，如 URI，HTML，XML 等，将会极大提高系统与系统之间整合的互操作能力。尤其在 Web 应用领域，RESTful Web 服务所表达的这种抽象能力更加贴近 Web 本身的工作方式，也更加自然。</p>
+<p>同时，使用标准 HTTP 方法实现的 RRESTful Web 服务也带来了 HTTP 方法本身的一些优势：</p>
+<ul>
+<li><strong>无状态性（Stateless）</strong></li>
+</ul>
+<p>HTTP 协议从本质上说是一种无状态的协议，客户端发出的 HTTP 请求之间可以相互隔离，不存在相互的状态依赖。基于 HTTP 的 ROA，以非常自然的方式来实现无状态服务请求处理逻辑。对于分布式的应用而言，任意给定的两个服务请求 Request 1 与 Request 2, 由于它们之间并没有相互之间的状态依赖，就不需要对它们进行相互协作处理，其结果是：Request 1 与 Request 2 可以在任何的服务器上执行，这样的应用很容易在服务器端支持负载平衡 (load-balance)。</p>
+<ul>
+<li><strong>安全操作与幂指相等特性（Safety /Idempotence）</strong></li>
+</ul>
+<p>HTTP 的 GET、HEAD 请求本质上应该是安全的调用，即：GET、HEAD 调用不会有任何的副作用，不会造成服务器端状态的改变。对于服务器来说，客户端对某一 URI 做 n 次的 GET、HAED 调用，其状态与没有做调用是一样的，不会发生任何的改变。</p>
+<p>HTTP 的 PUT、DELTE 调用，具有幂指相等特性 , 即：客户端对某一 URI 做 n 次的 PUT、DELTE 调用，其效果与做一次的调用是一样的。HTTP 的 GET、HEAD 方法也具有幂指相等特性。</p>
+<p>HTTP 这些标准方法在原则上保证你的分布式系统具有这些特性，以帮助构建更加健壮的分布式系统。</p>
+<h3 id="安全控制"><a href="#安全控制" class="headerlink" title="安全控制"></a>安全控制</h3><p>为了说明问题，基于上面的在线用户管理系统，我们给定以下场景：</p>
+<p>参考一开始我们给出的用例图，对于客户端 Client2，我们只希望它能以只读的方式访问 User 和 User List 资源，而 Client1 具有访问所有资源的所有权限。</p>
+<p><strong>如何做这样的安全控制？</strong></p>
+<p>通行的做法是：所有从客户端 Client2 发出的 HTTP 请求都经过代理服务器 (Proxy Server)。代理服务器制定安全策略：所有经过该代理的访问 User 和 User List 资源的请求只具有读取权限，即：允许 GET/HEAD 操作，而像具有写权限的 PUT/DELTE 是不被允许的。</p>
+<p>如果对于 REST，我们看看这样的安全策略是如何部署的。如下图所示：</p>
+<p><strong>图 4. REST 与代理服务器 (Proxy Servers)系统</strong><br><img src="http://p1.bpimg.com/588729/e734dec280c5f470.jpg" alt="RESTandProxy"></p>
+<p>一般代理服务器的实现根据 (URI, HTTP Method) 两元组来决定 HTTP 请求的安全合法性。</p>
+<p>当发现类似于（<a href="http://localhost:8182/v1/users/{username}，DELETE）这样的请求时，予以拒绝。" target="_blank" rel="external">http://localhost:8182/v1/users/{username}，DELETE）这样的请求时，予以拒绝。</a></p>
+<p>对于 SOAP，如果我们想借助于既有的代理服务器进行安全控制，会比较尴尬，如下图：</p>
+<p><strong>图 5. SOAP 与代理服务器 (Proxy Servers)</strong></p>
+<p><img src="http://p1.bpimg.com/588729/4681bbc3ef21851b.jpg" alt="SOAPandProxy"></p>
+<p>所有的 SOAP 消息经过代理服务器，只能看到（<a href="http://localhost:8182/v1/soap/servlet/messagerouter" target="_blank" rel="external">http://localhost:8182/v1/soap/servlet/messagerouter</a>, HTTP POST）这样的信息，如果代理服务器想知道当前的 HTTP 请求具体做的是什么，必须对 SOAP 的消息体解码，这样的话，意味着要求第三方的代理服务器需要理解当前的 SOAP 消息语义，而这种 SOAP 应用与代理服务器之间的紧耦合关系是不合理的。</p>
+<h3 id="关于缓存"><a href="#关于缓存" class="headerlink" title="关于缓存"></a>关于缓存</h3><p>众所周知，对于基于网络的分布式应用，网络传输是一个影响应用性能的重要因素。如何使用缓存来节省网络传输带来的开销，这是每一个构建分布式网络应用的开发人员必须考虑的问题。</p>
+<p>HTTP 协议带条件的 HTTP GET 请求 (Conditional GET) 被设计用来节省客户端与服务器之间网络传输带来的开销，这也给客户端实现 Cache 机制 ( 包括在客户端与服务器之间的任何代理 ) 提供了可能。HTTP 协议通过 HTTP HEADER 域：If-Modified-Since/Last- Modified，If-None-Match/ETag 实现带条件的 GET 请求。</p>
+<p>REST 的应用可以充分地挖掘 HTTP 协议对缓存支持的能力。当客户端第一次发送 HTTP GET 请求给服务器获得内容后，该内容可能被缓存服务器 (Cache Server) 缓存。当下一次客户端请求同样的资源时，缓存可以直接给出响应，而不需要请求远程的服务器获得。而这一切对客户端来说都是透明的。</p>
+<p><strong>图 6. REST 与缓存服务器 (Cache Server)</strong><br><img src="http://p1.bpimg.com/588729/86e77ec9a9fcc2c9.jpg" alt="RESTandCache"></p>
+<p>而对于 SOAP，情况又是怎样的呢？</p>
+<p>使用 HTTP 协议的 SOAP，由于其设计原则上并不像 REST 那样强调与 Web 的工作方式相一致，所以，基于 SOAP 应用很难充分发挥 HTTP 本身的缓存能力。</p>
+<p><strong>图 7. SOAP 与缓存服务器 (Cache Server)</strong><br><img src="http://p1.bpimg.com/588729/cb1f701b237010b4.jpg" alt="SOAPandCache"></p>
+<p>两个因素决定了基于 SOAP 应用的缓存机制要远比 REST 复杂：</p>
+<p>其一、所有经过缓存服务器的 SOAP 消息总是 HTTP POST，缓存服务器如果不解码 SOAP 消息体，没法知道该 HTTP 请求是否是想从服务器获得数据。</p>
+<p>其二、SOAP 消息所使用的 URI 总是指向 SOAP 的服务器，如本文例子中的 <a href="http://localhost:8182/v1/soap/servlet/messagerouter，这并没有表达真实的资源" target="_blank" rel="external">http://localhost:8182/v1/soap/servlet/messagerouter，这并没有表达真实的资源</a> URI，其结果是缓存服务器根本不知道那个资源正在被请求，更不用谈进行缓存处理。</p>
+<h3 id="关于连接性"><a href="#关于连接性" class="headerlink" title="关于连接性"></a>关于连接性</h3><p>在一个纯的 SOAP 应用中，URI 本质上除了用来指示 SOAP 服务器外，本身没有任何意义。与 REST 的不同的是，无法通过 URI 驱动 SOAP 方法调用。例如在我们的例子中，当我们通过</p>
+<p>getUserList SOAP 消息获得所有的用户列表后，仍然无法通过既有的信息得到某个具体的用户信息。唯一的方法只有通过 WSDL 的指示，通过调用 getUserByName 获得，getUserList 与 getUserByName 是彼此孤立的。</p>
+<p>而对于 REST，情况是完全不同的：通过 <a href="http://localhost:8182/v1/users" target="_blank" rel="external">http://localhost:8182/v1/users</a> URI 获得用户列表，然后再通过用户列表中所提供的 LINK 属性，例如 <link><a href="http://localhost:8182/v1/users/tester" target="_blank" rel="external">http://localhost:8182/v1/users/tester</a>获得 tester 用户的用户信息。这样的工作方式，非常类似于你在浏览器的某个页面上点击某个 hyperlink, 浏览器帮你自动定向到你想访问的页面，并不依赖任何第三方的信息。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>典型的基于 SOAP 的 Web 服务以操作为中心，每个操作接受 XML 文档作为输入，提供 XML 文档作为输出。在本质上讲，它们是 RPC 风格的。而在遵循 REST 原则的 ROA 应用中，服务是以资源为中心的，对每个资源的操作都是标准化的 HTTP 方法。</p>
+<p>本文主要集中在以上的几个方面，对SOAP与REST进行了对比，可以看到，基于REST构建的系统其系统的扩展能力要强于SOAP，这可以体现在它的统一接口抽象、代理服务器支持、缓存服务器支持等诸多方面。并且，伴随着<code>Web Site as Web Services</code>演进的趋势，基于REST设计和实现的简单性和强扩展性，有理由相信，REST将会成为Web服务的一个重要架构实践领域。</p>
+<!--more-->  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/REST/">REST</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	<div class="share-jiathis">
+	  
+<div class="jiathis_style_24x24">
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_googleplus"></a>
+	<a class="jiathis_button_douban"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=2126358
+2126358" charset="utf-8"></script>      
+
+	 </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/03/21/Ansible安装与配置-入门/" title="Ansible安装与配置(入门)">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Ansible安装与配置(入门)</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/03/21/浏览器访问服务器时，都发生了什么？/"  title="浏览器访问服务器时，都发生了什么？">
+ <strong>下一篇：</strong><br/> 
+ <span>浏览器访问服务器时，都发生了什么？
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2017/03/21/Web服务编程——REST与SOAP比较/" data-title="Web服务编程——REST与SOAP比较" data-url="http://yoursite.com/2017/03/21/Web服务编程——REST与SOAP比较/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#REST-简介"><span class="toc-number">1.</span> <span class="toc-text">REST 简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#应用场景介绍（在线用户管理）"><span class="toc-number">2.</span> <span class="toc-text">应用场景介绍（在线用户管理）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用-REST-实现-Web-服务"><span class="toc-number">3.</span> <span class="toc-text">使用 REST 实现 Web 服务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Restful-Web-服务架构"><span class="toc-number">3.1.</span> <span class="toc-text">Restful Web 服务架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#客户端实现"><span class="toc-number">3.2.</span> <span class="toc-text">客户端实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#服务端实现"><span class="toc-number">3.3.</span> <span class="toc-text">服务端实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用-SOAP-实现-Web-服务"><span class="toc-number">4.</span> <span class="toc-text">使用 SOAP 实现 Web 服务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SOAP-Web-服务架构"><span class="toc-number">4.1.</span> <span class="toc-text">SOAP Web 服务架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#获得用户信息列表"><span class="toc-number">4.2.</span> <span class="toc-text">获得用户信息列表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#获得某一具体用户信息"><span class="toc-number">4.3.</span> <span class="toc-text">获得某一具体用户信息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#REST-与-SOAP-比较"><span class="toc-number">5.</span> <span class="toc-text">REST 与 SOAP 比较</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#接口抽象"><span class="toc-number">5.1.</span> <span class="toc-text">接口抽象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安全控制"><span class="toc-number">5.2.</span> <span class="toc-text">安全控制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关于缓存"><span class="toc-number">5.3.</span> <span class="toc-text">关于缓存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关于连接性"><span class="toc-number">5.4.</span> <span class="toc-text">关于连接性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">6.</span> <span class="toc-text">总结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Hexo/" title="Hexo">Hexo<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Redis/" title="Redis">Redis<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Django/" title="Django">Django<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/REST/" title="REST">REST<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Ansible/" title="Ansible">Ansible<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/RBD-Mirror/" title="RBD-Mirror">RBD-Mirror<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/补码/" title="补码">补码<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/通信机制/" title="通信机制">通信机制<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Virtualenv/" title="Virtualenv">Virtualenv<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/callback/" title="callback">callback<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/互联网协议/" title="互联网协议">互联网协议<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Ceph/" title="Ceph">Ceph<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python学习之路/" title="Python学习之路">Python学习之路<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python部落刷题宝/" title="Python部落刷题宝">Python部落刷题宝<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/博客搭建/" title="博客搭建">博客搭建<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/被解放的Django/" title="被解放的Django">被解放的Django<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/计算机基础/" title="计算机基础">计算机基础<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+	<iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=0&isWeibo=0&isFans=0&uid=2826271411&verifier=e270a789&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Gocjy <br/>
+			人类的悲欢并不相通，我只觉得他们吵闹。</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2826271411" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="曹嘉宇">曹嘉宇</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"chown-jane-y"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

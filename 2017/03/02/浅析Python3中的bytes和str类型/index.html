@@ -1,0 +1,550 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>浅析Python3中的bytes和str类型 | 狗几</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="曹嘉宇">
+    
+
+    
+    <meta name="description" content="Python3中的字符编码问题，再也不用担心什么时候decode，什么时候encode啦。">
+<meta name="keywords" content="Python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅析Python3中的bytes和str类型">
+<meta property="og:url" content="http://yoursite.com/2017/03/02/浅析Python3中的bytes和str类型/index.html">
+<meta property="og:site_name" content="狗几">
+<meta property="og:description" content="Python3中的字符编码问题，再也不用担心什么时候decode，什么时候encode啦。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-07-21T05:39:42.261Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="浅析Python3中的bytes和str类型">
+<meta name="twitter:description" content="Python3中的字符编码问题，再也不用担心什么时候decode，什么时候encode啦。">
+
+    
+    <link rel="alternative" href="/atom.xml" title="狗几" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.png">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="狗几" title="狗几"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="狗几">狗几</a></h1>
+				<h2 class="blog-motto">新手程序员，正在学习Python，欢迎交流。</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:yoursite.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/03/02/浅析Python3中的bytes和str类型/" title="浅析Python3中的bytes和str类型" itemprop="url">浅析Python3中的bytes和str类型</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-03-02T01:34:40.000Z" itemprop="datePublished"> 发表于 2017-03-02</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#编码发展的历史"><span class="toc-number">1.</span> <span class="toc-text">编码发展的历史</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bytes和str之间的异同"><span class="toc-number">2.</span> <span class="toc-text">bytes和str之间的异同</span></a></li></ol>
+		
+		</div>
+		
+		<p>Python 3最重要的新特性之一是对字符串和二进制数据流做了明确的区分。文本总是<code>Unicode</code>，由<code>str</code>类型表示，二进制数据则由<code>bytes</code>类型表示。Python 3不会以任意隐式的方式混用<code>str</code>和<code>bytes</code>，你不能拼接字符串和字节流，也无法在字节流里搜索字符串（反之亦然），也不能将字符串传入参数为字节流的函数（反之亦然）。</p>
+<p>下面让我们深入分析一下二者的区别和联系。</p>
+<a id="more"></a>
+<h2 id="编码发展的历史"><a href="#编码发展的历史" class="headerlink" title="编码发展的历史"></a>编码发展的历史</h2><p>在谈<code>bytes</code>和<code>str</code>之前，需要先说说关于编码是如何发展的。。</p>
+<p>在计算机历史的早期，美国为代表的英语系国家主导了整个计算机行业，26个英文字母组成了多样的英语单词、语句、文章。因此，最早的字符编码规范是<strong>ASCII码，一种8位即1个字节的编码规范</strong>，它可以涵盖整个英语系的编码需要。</p>
+<p>编码是什么？编码就是把一个字符用一个二进制来表示。我们都知道，所有的东西，不管是英文、中文还是符号等等，最终存储在磁盘上都是01010101这类东西。在计算机内部，读取和存储数据归根结底，处理的都是0和1组成的比特流。问题来了，人类看不懂这些比特流，如何让这些010101对人类变得可读呢？于是出现了字符编码，它是个翻译机，在计算机内部某个地方，透明的帮我们将比特流翻译成人类可以直接理解的文字。对于一般用户，不需要知道这个过程是什么原理，是怎么执行的。但是对于程序员却是个必须搞清楚的问题。</p>
+<p>以<code>ASCII</code>编码为例，它规定1个字节8个比特位代表1个字符的编码，也就是“00000000”这么宽，一个一个字节的解读。例如：01000001表示大写字母A，有时我们会“偷懒”的用65这个十进制来表示A在<code>ASCII</code>中的编码。8个比特位，可以没有重复的最多表示2的8次方(255)个字符。</p>
+<p>后来，计算机得到普及，中文、日文、韩文等等国家的文字需要在计算机内表示，ASCII的255位远远不够，于是标准组织制定出了叫做<strong>UNICODE的万国码</strong>，它规定<strong>任何一个字符（不管哪国的）至少以2个字节表示，可以更多</strong>。其中，英文字母就是用2个字节，而汉字是3个字节。这个编码虽然很好，满足了所有人的要求，但是它不兼容<code>ASCII</code>，同时还占用较多的空间和内存。因为，在计算机世界更多的字符是英文字母，明明可以1个字节就能够表示，非要用2个。</p>
+<p>于是<code>UTF-8</code>编码应运而生，它规定<strong>英文字母系列用1个字节表示，汉字用3个字节表示</strong>等等。因此，它兼容<code>ASCII</code>，可以解码早期的文档。<code>UTF-8</code>很快就得到了广泛的应用。</p>
+<p>在编码的发展历程中，我国还创造了自己的编码方式，例如<code>GBK</code>，<code>GB2312</code>，<code>BIG5</code>。他们只局限于在国内使用，不被国外认可。在<code>GBK</code>编码中，中文汉字占2个字节。</p>
+<h2 id="bytes和str之间的异同"><a href="#bytes和str之间的异同" class="headerlink" title="bytes和str之间的异同"></a>bytes和str之间的异同</h2><p>回到<code>bytes</code>和<code>str</code>的身上。<code>bytes</code>是一种比特流，它的存在形式是01010001110这种。我们无论是在写代码，还是阅读文章的过程中，肯定不会有人直接阅读这种比特流，它必须有一个编码方式，使得它变成有意义的比特流，而不是一堆晦涩难懂的01组合。因为编码方式的不同，对这个比特流的解读也会不同，对实际使用造成了很大的困扰。下面让我们看看Python是如何处理这一系列编码问题的：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; s = "中文"</div><div class="line">&gt;&gt;&gt; s</div><div class="line">'中文'</div><div class="line">&gt;&gt;&gt; type(s)</div><div class="line">&lt;class 'str'&gt;</div><div class="line">&gt;&gt;&gt; b = bytes(s, encoding='utf-8')</div><div class="line">&gt;&gt;&gt; b</div><div class="line">b'\xe4\xb8\xad\xe6\x96\x87'</div><div class="line">&gt;&gt;&gt; type(b)</div><div class="line">&lt;class 'bytes'&gt;</div></pre></td></tr></table></figure></p>
+<p>从例子可以看出，<code>s</code>是个字符串类型。Python有个内置函数<code>bytes()</code>可以将字符串<code>str</code>类型转换成<code>bytes</code>类型，<code>b</code>实际上是一串01的组合，但为了在ide环境中让我们相对直观的观察，它被表现成了<code>b&#39;\xe4\xb8\xad\xe6\x96\x87&#39;</code>这种形式，开头的<code>b</code>表示这是一个<code>bytes</code>类型。<code>\xe4</code>是十六进制的表示方式，它占用1个字节的长度，因此<strong>”中文“</strong>被编码成<code>utf-8</code>后，我们可以数得出一共用了6个字节，每个汉字占用3个，这印证了上面的论述。在使用内置函数<code>bytes()</code>的时候，必须明确<code>encoding</code>的参数，不可省略。</p>
+<p>我们都知道，字符串类<code>str</code>里有一个<code>encode()</code>方法，它是<strong>从字符串向比特流的编码</strong>过程。而<code>bytes</code>类型恰好有个<code>decode()</code>方法，它是<strong>从比特流向字符串解码</strong>的过程。除此之外，我们查看Python源码会发现<code>bytes</code>和<code>str</code>拥有几乎一模一样的方法列表，最大的区别就是<code>encode</code>和<code>decode</code>。</p>
+<p>从实质上来说，字符串在磁盘上的保存形式也是01的组合，也需要编码解码。</p>
+<p>如果，上面的阐述还不能让你搞清楚两者的区别，那么记住下面两几句话：</p>
+<ol>
+<li><p>在将字符串存入磁盘和从磁盘读取字符串的过程中，Python自动地帮你完成了编码和解码的工作，你不需要关心它的过程。</p>
+</li>
+<li><p>使用<code>bytes</code>类型，实质上是告诉Python，不需要它帮你自动地完成编码和解码的工作，而是用户自己手动进行，并指定编码格式。</p>
+</li>
+<li><p>Python已经严格区分了<code>bytes</code>和<code>str</code>两种数据类型，你不能在需要<code>bytes</code>类型参数的时候使用<code>str</code>参数，反之亦然。这点在读写磁盘文件时容易碰到。</p>
+</li>
+</ol>
+<p>在bytes和str的互相转换过程中，实际就是编码解码的过程，必须显式地指定编码格式。<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; b</div><div class="line">b'\xe4\xb8\xad\xe6\x96\x87'</div><div class="line">&gt;&gt;&gt; type(b)</div><div class="line">&lt;class 'bytes'&gt;</div><div class="line">&gt;&gt;&gt; s1 = str(b)</div><div class="line">&gt;&gt;&gt; s1</div><div class="line">"b'\\xe4\\xb8\\xad\\xe6\\x96\\x87'"</div><div class="line">&gt;&gt;&gt; type(s1)</div><div class="line">&lt;class 'str'&gt;</div><div class="line">&gt;&gt;&gt; s1 = str(b, encoding='utf-8')</div><div class="line">&gt;&gt;&gt; s1</div><div class="line">'中文'</div><div class="line">&gt;&gt;&gt; type(s1)</div><div class="line">&lt;class 'str'&gt;</div></pre></td></tr></table></figure></p>
+<p>我们再把字符串s1，转换成gbk编码的bytes类型：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; s1</div><div class="line">'中文'</div><div class="line">&gt;&gt;&gt; type(s1)</div><div class="line">&lt;class 'str'&gt;</div><div class="line">&gt;&gt;&gt; b =  bytes(s1, encoding='gbk')</div><div class="line">&gt;&gt;&gt; b</div><div class="line">b'\xd6\xd0\xce\xc4'</div></pre></td></tr></table></figure></p>
+<!-- morer -->
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Python学习之路/">Python学习之路</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Python/">Python</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	<div class="share-jiathis">
+	  
+<div class="jiathis_style_24x24">
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_googleplus"></a>
+	<a class="jiathis_button_douban"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=2126358
+2126358" charset="utf-8"></script>      
+
+	 </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/03/02/一网打尽-原码、反码与补码/" title="一网打尽 原码、反码与补码">
+  <strong>上一篇：</strong><br/>
+  <span>
+  一网打尽 原码、反码与补码</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/03/01/Python部落刷题宝基础题（一）/"  title="Python部落刷题宝基础题（一）">
+ <strong>下一篇：</strong><br/> 
+ <span>Python部落刷题宝基础题（一）
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2017/03/02/浅析Python3中的bytes和str类型/" data-title="浅析Python3中的bytes和str类型" data-url="http://yoursite.com/2017/03/02/浅析Python3中的bytes和str类型/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#编码发展的历史"><span class="toc-number">1.</span> <span class="toc-text">编码发展的历史</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bytes和str之间的异同"><span class="toc-number">2.</span> <span class="toc-text">bytes和str之间的异同</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Hexo/" title="Hexo">Hexo<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Redis/" title="Redis">Redis<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Django/" title="Django">Django<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/REST/" title="REST">REST<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Ansible/" title="Ansible">Ansible<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/RBD-Mirror/" title="RBD-Mirror">RBD-Mirror<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/补码/" title="补码">补码<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/通信机制/" title="通信机制">通信机制<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Virtualenv/" title="Virtualenv">Virtualenv<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/callback/" title="callback">callback<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/互联网协议/" title="互联网协议">互联网协议<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Ceph/" title="Ceph">Ceph<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python学习之路/" title="Python学习之路">Python学习之路<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python部落刷题宝/" title="Python部落刷题宝">Python部落刷题宝<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/博客搭建/" title="博客搭建">博客搭建<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/被解放的Django/" title="被解放的Django">被解放的Django<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/计算机基础/" title="计算机基础">计算机基础<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+	<iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=0&isWeibo=0&isFans=0&uid=2826271411&verifier=e270a789&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Gocjy <br/>
+			人类的悲欢并不相通，我只觉得他们吵闹。</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2826271411" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="曹嘉宇">曹嘉宇</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"chown-jane-y"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

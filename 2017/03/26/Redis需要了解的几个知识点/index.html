@@ -1,0 +1,612 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Redis需要了解的几个知识点 | 狗几</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="曹嘉宇">
+    
+
+    
+    <meta name="description" content="收集网上的一些关于Redis的知识点，包括Redis的优势、和Memcached的区别、常见性能问题等知识。 内容来自网络，具体出处不可考。">
+<meta name="keywords" content="Redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis需要了解的几个知识点">
+<meta property="og:url" content="http://yoursite.com/2017/03/26/Redis需要了解的几个知识点/index.html">
+<meta property="og:site_name" content="狗几">
+<meta property="og:description" content="收集网上的一些关于Redis的知识点，包括Redis的优势、和Memcached的区别、常见性能问题等知识。 内容来自网络，具体出处不可考。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-07-21T05:39:42.250Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis需要了解的几个知识点">
+<meta name="twitter:description" content="收集网上的一些关于Redis的知识点，包括Redis的优势、和Memcached的区别、常见性能问题等知识。 内容来自网络，具体出处不可考。">
+
+    
+    <link rel="alternative" href="/atom.xml" title="狗几" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.png">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="狗几" title="狗几"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="狗几">狗几</a></h1>
+				<h2 class="blog-motto">新手程序员，正在学习Python，欢迎交流。</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:yoursite.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/03/26/Redis需要了解的几个知识点/" title="Redis需要了解的几个知识点" itemprop="url">Redis需要了解的几个知识点</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-03-26T11:45:03.000Z" itemprop="datePublished"> 发表于 2017-03-26</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#使用Redis有哪些好处？"><span class="toc-number">1.</span> <span class="toc-text">使用Redis有哪些好处？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#redis常见性能问题和解决方案"><span class="toc-number">2.</span> <span class="toc-text">redis常见性能问题和解决方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MySQL里有2000w数据，redis中只存20w的数据，如何保证redis中的数据都是热点数据"><span class="toc-number">3.</span> <span class="toc-text">MySQL里有2000w数据，redis中只存20w的数据，如何保证redis中的数据都是热点数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis相比Memcached有哪些优势？"><span class="toc-number">4.</span> <span class="toc-text">Redis相比Memcached有哪些优势？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#redis最适合的场景"><span class="toc-number">5.</span> <span class="toc-text">redis最适合的场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#redis有时候会请求超时，已知都是固定的一个时间，比如200ms或者500ms，问这是为什么？"><span class="toc-number">6.</span> <span class="toc-text">redis有时候会请求超时，已知都是固定的一个时间，比如200ms或者500ms，问这是为什么？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#redis的并发竞争问题如何解决"><span class="toc-number">7.</span> <span class="toc-text">redis的并发竞争问题如何解决?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#redis事务的了解"><span class="toc-number">8.</span> <span class="toc-text">redis事务的了解?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#redis的缓存失效策略和主键失效机制"><span class="toc-number">9.</span> <span class="toc-text">redis的缓存失效策略和主键失效机制</span></a></li></ol>
+		
+		</div>
+		
+		<p>收集网上的一些关于Redis的知识点，包括Redis的优势、和Memcached的区别、常见性能问题等知识。</p>
+<p>内容来自网络，具体出处不可考。</p>
+<a id="more"></a>
+<h2 id="使用Redis有哪些好处？"><a href="#使用Redis有哪些好处？" class="headerlink" title="使用Redis有哪些好处？"></a>使用Redis有哪些好处？</h2><p>(1) 速度快，因为数据存在内存中，类似于HashMap，HashMap的优势就是查找和操作的时间复杂度都是O(1)</p>
+<p>(2) 支持丰富数据类型，支持string，list，set，sorted set，hash</p>
+<p>(3) 支持事务，操作都是原子性，所谓的原子性就是对数据的更改要么全部执行，要么全部不执行</p>
+<p>(4) 丰富的特性：可用于缓存，消息，按key设置过期时间，过期后将会自动删除</p>
+<h2 id="redis常见性能问题和解决方案"><a href="#redis常见性能问题和解决方案" class="headerlink" title="redis常见性能问题和解决方案"></a>redis常见性能问题和解决方案</h2><p>1) Master写内存快照，save命令调度rdbSave函数，会阻塞主线程的工作，当快照比较大时对性能影响是非常大的，会间断性暂停服务，所以Master最好不要写内存快照。</p>
+<p>2) Master AOF持久化，如果不重写AOF文件，这个持久化方式对性能的影响是最小的，但是AOF文件会不断增大，AOF文件过大会影响Master重启的恢复速度。<strong>Master最好不要做任何持久化工作，包括内存快照和AOF日志文件</strong>，特别是不要启用内存快照做持久化，<strong>如果数据比较关键，某个Slave开启AOF备份数据，策略为每秒同步一次。</strong></p>
+<p>3) Master调用BGREWRITEAOF重写AOF文件，AOF在重写的时候会占大量的CPU和内存资源，导致服务load过高，出现短暂服务暂停现象。</p>
+<p>4) Redis主从复制的性能问题，为了主从复制的速度和连接的稳定性，Slave和Master最好在同一个局域网内</p>
+<p>5) 尽量避免在压力很大的主库上增加从库</p>
+<p>6) 主从复制不要用图状结构，用单向链表结构更为稳定，即：<code>Master &lt;- Slave1 &lt;- Slave2 &lt;- Slave3...</code>。这样的结构方便解决单点故障问题，实现Slave对Master的替换。如果Master挂了，可以立刻启用Slave1做Master，其他不变。</p>
+<h2 id="MySQL里有2000w数据，redis中只存20w的数据，如何保证redis中的数据都是热点数据"><a href="#MySQL里有2000w数据，redis中只存20w的数据，如何保证redis中的数据都是热点数据" class="headerlink" title="MySQL里有2000w数据，redis中只存20w的数据，如何保证redis中的数据都是热点数据"></a>MySQL里有2000w数据，redis中只存20w的数据，如何保证redis中的数据都是热点数据</h2><p> 相关知识：redis 内存数据集大小上升到一定大小的时候，就会施行数据淘汰策略。redis 提供 6种数据淘汰策略：</p>
+<ul>
+<li><p>voltile-lru：从已设置过期时间的数据集（server.db[i].expires）中挑选最近最少使用的数据淘汰</p>
+</li>
+<li><p>volatile-ttl：从已设置过期时间的数据集（server.db[i].expires）中挑选将要过期的数据淘汰</p>
+</li>
+<li><p>volatile-random：从已设置过期时间的数据集（server.db[i].expires）中任意选择数据淘汰</p>
+</li>
+<li><p>allkeys-lru：从数据集（server.db[i].dict）中挑选最近最少使用的数据淘汰</p>
+</li>
+<li><p>allkeys-random：从数据集（server.db[i].dict）中任意选择数据淘汰</p>
+</li>
+<li><p>no-enviction（驱逐）：禁止驱逐数据</p>
+</li>
+</ul>
+<p>所以用lru策略可以保证redis中的数据都是近期使用频率比较高的数据，也就是热点数据。</p>
+<p>注意这里的6种机制，volatile和allkeys规定了是对已设置过期时间的数据集淘汰数据还是从全部数据集淘汰数据，后面的lru、ttl以及random是三种不同的淘汰策略，再加上一种no-enviction永不回收的策略。</p>
+<p>使用策略规则：</p>
+<ol>
+<li>如果数据呈现幂律分布，也就是一部分数据访问频率高，一部分数据访问频率低，则使用allkeys-lru</li>
+<li>如果数据呈现平等分布，也就是所有的数据访问频率都相同，则使用allkeys-random</li>
+</ol>
+<h2 id="Redis相比Memcached有哪些优势？"><a href="#Redis相比Memcached有哪些优势？" class="headerlink" title="Redis相比Memcached有哪些优势？"></a>Redis相比Memcached有哪些优势？</h2><p>1) 存储方式</p>
+<ul>
+<li><p>Memecache把数据全部存在内存之中，断电后会挂掉，数据不能超过内存大小。</p>
+</li>
+<li><p>Redis有部份存在硬盘上，这样能保证数据的持久性。</p>
+</li>
+</ul>
+<p>2) 数据支持类型</p>
+<p> memcached所有的值均是简单的字符串，redis作为其替代者，支持更为丰富的数据类型。</p>
+<p>3) 使用底层模型不同</p>
+<p>它们之间底层实现方式 以及与客户端之间通信的应用协议不一样。</p>
+<p>Redis直接自己构建了VM 机制 ，因为一般的系统调用系统函数的话，会浪费一定的时间去移动和请求。</p>
+<p>4) value大小</p>
+<p>redis最大可以达到1GB，而memcache只有1MB</p>
+<h2 id="redis最适合的场景"><a href="#redis最适合的场景" class="headerlink" title="redis最适合的场景"></a>redis最适合的场景</h2><p>Redis最适合所有数据in-momory的场景，虽然Redis也提供持久化功能，但实际更多的是一个disk-backed的功能，跟传统意义上的持久化有比较大的差别，那么可能大家就会有疑问，似乎Redis更像一个加强版的Memcached，那么何时使用Memcached,何时使用Redis呢?</p>
+<p>如果简单地比较Redis与Memcached的区别，大多数都会得到以下观点：</p>
+<ul>
+<li>Redis不仅仅支持简单的k/v类型的数据，同时还提供list，set，zset，hash等数据结构的存储。</li>
+<li>Redis支持数据的备份，即master-slave模式的数据备份。</li>
+<li>Redis支持数据的持久化，可以将内存中的数据保持在磁盘中，重启的时候可以再次加载进行使用。</li>
+</ul>
+<p>（1）会话缓存（Session Cache）</p>
+<p>最常用的一种使用Redis的情景是会话缓存（session cache）。用Redis缓存会话比其他存储（如Memcached）的优势在于：Redis提供持久化。当维护一个不是严格要求一致性的缓存时，如果用户的购物车信息全部丢失，大部分人都会不高兴的，现在，他们还会这样吗？</p>
+<p>（2）全页缓存（FPC）</p>
+<p>除基本的会话token之外，Redis还提供很简便的FPC平台。回到一致性问题，即使重启了Redis实例，因为有磁盘的持久化，用户也不会看到页面加载速度的下降，这是一个极大改进，类似PHP本地FPC。</p>
+<p>（3）队列</p>
+<p>Reids在内存存储引擎领域的一大优点是提供 list 和 set 操作，这使得Redis能作为一个很好的消息队列平台来使用。Redis作为队列使用的操作，就类似于本地程序语言（如Python）对 list 的 push/pop 操作。</p>
+<p>（4）排行榜/计数器</p>
+<p>Redis在内存中对数字进行递增或递减的操作实现的非常好。集合（Set）和有序集合（Sorted Set）也使得我们在执行这些操作的时候变的非常简单，Redis只是正好提供了这两种数据结构。所以，我们要从排序集合中获取到排名最靠前的10个用户–我们称之为“user_scores”，我们只需要像下面一样执行即可：</p>
+<p>当然，这是假定你是根据你用户的分数做递增的排序。如果你想返回用户及用户的分数，你需要这样执行：<br><code>ZRANGE user_scores 0 10 WITHSCORES</code></p>
+<p>（5）、发布/订阅</p>
+<p>最后（但肯定不是最不重要的）是Redis的发布/订阅功能。发布/订阅的使用场景确实非常多。我已看见人们在社交网络连接中使用，还可作为基于发布/订阅的脚本触发器，甚至用Redis的发布/订阅功能来建立聊天系统。</p>
+<h2 id="redis有时候会请求超时，已知都是固定的一个时间，比如200ms或者500ms，问这是为什么？"><a href="#redis有时候会请求超时，已知都是固定的一个时间，比如200ms或者500ms，问这是为什么？" class="headerlink" title="redis有时候会请求超时，已知都是固定的一个时间，比如200ms或者500ms，问这是为什么？"></a>redis有时候会请求超时，已知都是固定的一个时间，比如200ms或者500ms，问这是为什么？</h2><p>请求redis超时，如果时间较长，比如60s或者75s这样的，可能是redis的timeout配置。目前是时间较短，200ms就超时，一般来说redis没道理在能处理请求的时候报超时错误，会否是现在超过了redis设置的最大连接数maxclients，导致拒绝服务；会否是client自身的连接超时设置。</p>
+<h2 id="redis的并发竞争问题如何解决"><a href="#redis的并发竞争问题如何解决" class="headerlink" title="redis的并发竞争问题如何解决?"></a>redis的并发竞争问题如何解决?</h2><p>Redis为<strong>单进程单线程模式</strong>，采用队列模式将并发访问变为串行访问。<strong>Redis本身没有锁的概念</strong>，Redis对于多个客户端连接并不存在竞争，但是在Jedis客户端对Redis进行并发访问时会发生连接超时、数据转换错误、阻塞、客户端关闭连接等问题，这些问题均是由于客户端连接混乱造成。对此有2种解决方法：</p>
+<ol>
+<li><p>客户端角度，为保证每个客户端间正常有序与Redis进行通信，对连接进行池化，同时对客户端读写Redis操作采用内部锁synchronized。</p>
+</li>
+<li><p>服务器角度，利用setnx实现锁。</p>
+</li>
+</ol>
+<p>对于第一种，需要应用程序自己处理资源的同步，可以使用的方法比较通俗，可以使用synchronized也可以使用lock；第二种需要用到Redis的setnx命令，但是需要注意一些问题。</p>
+<h2 id="redis事务的了解"><a href="#redis事务的了解" class="headerlink" title="redis事务的了解?"></a>redis事务的了解?</h2><p>和众多其它数据库一样，Redis作为NoSQL数据库也同样提供了事务机制。在Redis中，<code>MULTI/EXEC/DISCARD/WATCH</code>这四个命令是我们实现事务的基石。相信对有关系型数据库开发经验的开发者而言这一概念并不陌生，即便如此，我们还是会简要的列出Redis中事务的实现特征：</p>
+<p>1、在事务中的所有命令都将会被串行化的顺序执行，事务执行期间，Redis不会再为其它客户端的请求提供任何服务，从而保证了事物中的所有命令被原子的执行。</p>
+<p>2、和关系型数据库中的事务相比，在Redis事务中如果有某一条命令执行失败，其后的命令仍然会被继续执行。</p>
+<p>3、我们可以通过<code>MULTI</code>命令开启一个事务，有关系型数据库开发经验的人可以将其理解为<code>BEGIN TRANSACTION</code>语句。在该语句之后执行的命令都将被视为事务之内的操作，最后我们可以通过执行<code>EXEC/DISCARD</code>命令来提交/回滚该事务内的所有操作。这两个Redis命令可被视为等同于关系型数据库中的<code>COMMIT/ROLLBACK</code>语句。</p>
+<p>4、在事务开启之前，如果客户端与服务器之间出现通讯故障并导致网络断开，其后所有待执行的语句都将不会被服务器执行。然而如果网络中断事件是发生在客户端执行<code>EXEC</code>命令之后，那么该事务中的所有命令都会被服务器执行。</p>
+<p>5、当使用<code>Append-Only</code>模式时，Redis会通过调用系统函数write将该事务内的所有写操作在本次调用中全部写入磁盘。然而如果在写入的过程中出现系统崩溃，如电源故障导致的宕机，那么此时也许只有部分数据被写入到磁盘，而另外一部分数据却已经丢失。Redis服务器会在重新启动时执行一系列必要的一致性检测，一旦发现类似问题，就会立即退出并给出相应的错误提示。此时，我们就要充分利用Redis工具包中提供的<code>redis-check-aof</code>工具，该工具可以帮助我们定位到数据不一致的错误，并将已经写入的部分数据进行回滚。修复之后我们就可以再次重新启动Redis服务器了。</p>
+<h2 id="redis的缓存失效策略和主键失效机制"><a href="#redis的缓存失效策略和主键失效机制" class="headerlink" title="redis的缓存失效策略和主键失效机制"></a>redis的缓存失效策略和主键失效机制</h2><p>作为缓存系统都要定期清理无效数据，就需要一个主键失效和淘汰策略.</p>
+<p>在Redis当中，<strong>有生存期的key被称为<code>volatile</code></strong>。在创建缓存时，要为给定的key设置生存期，当key过期的时候（生存期为0），它可能会被删除。</p>
+<p>1、影响生存时间的一些操作</p>
+<p>生存时间可以通过使用 <code>DEL</code> 命令来删除整个 key 来移除，或者被 <code>SET</code> 和 <code>GETSET</code> 命令覆盖原来的数据，也就是说，修改key对应的value和使用另外相同的key和value来覆盖以后，当前数据的生存时间不同。</p>
+<p>比如说，对一个 key 执行<code>INCR</code>命令，对一个列表进行<code>LPUSH</code>命令，或者对一个哈希表执行<code>HSET</code>命令，这类操作都不会修改 key 本身的生存时间。另一方面，如果使用<code>RENAME</code>对一个 key 进行改名，那么改名后的 key的生存时间和改名前一样。</p>
+<p><code>RENAME</code>命令的另一种可能是，尝试将一个带生存时间的 key 改名成另一个带生存时间的 <code>another_key</code> ，这时旧的 <code>another_key</code> (以及它的生存时间)会被删除，然后旧的 key 会改名为 <code>another_key</code> ，因此，新的 <code>another_key</code> 的生存时间也和原本的 key 一样。使用<code>PERSIST</code>命令可以在不删除 key 的情况下，移除 key 的生存时间，让 key 重新成为一个persistent key 。</p>
+<p>2、如何更新生存时间</p>
+<p>可以对一个已经带有生存时间的 key 执行<code>EXPIRE</code>命令，新指定的生存时间会取代旧的生存时间。过期时间的精度已经被控制在1ms之内，主键失效的时间复杂度是O(1)，<code>EXPIRE</code>和<code>TTL</code>命令搭配使用，<code>TTL</code>可以查看key的当前生存时间。设置成功返回 1；当 key 不存在或者不能为 key 设置生存时间时，返回 0 。</p>
+<p><strong>最大缓存配置</strong></p>
+<p>在 redis 中，允许用户设置最大使用内存大小<code>server.maxmemory</code>。</p>
+<p>默认为0，没有指定最大缓存，如果有新的数据添加，超过最大内存，则会使redis崩溃，所以一定要设置。redis 内存数据集大小上升到一定大小的时候，就会实行数据淘汰策略。</p>
+<!--more-->  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Redis/">Redis</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	<div class="share-jiathis">
+	  
+<div class="jiathis_style_24x24">
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_googleplus"></a>
+	<a class="jiathis_button_douban"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=2126358
+2126358" charset="utf-8"></script>      
+
+	 </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/03/26/Redis的两种持久化方式及原理/" title="Redis的两种持久化方式及原理">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Redis的两种持久化方式及原理</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/03/23/浅析Python的垃圾回收机制/"  title="浅析Python的垃圾回收机制">
+ <strong>下一篇：</strong><br/> 
+ <span>浅析Python的垃圾回收机制
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2017/03/26/Redis需要了解的几个知识点/" data-title="Redis需要了解的几个知识点" data-url="http://yoursite.com/2017/03/26/Redis需要了解的几个知识点/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#使用Redis有哪些好处？"><span class="toc-number">1.</span> <span class="toc-text">使用Redis有哪些好处？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#redis常见性能问题和解决方案"><span class="toc-number">2.</span> <span class="toc-text">redis常见性能问题和解决方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MySQL里有2000w数据，redis中只存20w的数据，如何保证redis中的数据都是热点数据"><span class="toc-number">3.</span> <span class="toc-text">MySQL里有2000w数据，redis中只存20w的数据，如何保证redis中的数据都是热点数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis相比Memcached有哪些优势？"><span class="toc-number">4.</span> <span class="toc-text">Redis相比Memcached有哪些优势？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#redis最适合的场景"><span class="toc-number">5.</span> <span class="toc-text">redis最适合的场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#redis有时候会请求超时，已知都是固定的一个时间，比如200ms或者500ms，问这是为什么？"><span class="toc-number">6.</span> <span class="toc-text">redis有时候会请求超时，已知都是固定的一个时间，比如200ms或者500ms，问这是为什么？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#redis的并发竞争问题如何解决"><span class="toc-number">7.</span> <span class="toc-text">redis的并发竞争问题如何解决?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#redis事务的了解"><span class="toc-number">8.</span> <span class="toc-text">redis事务的了解?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#redis的缓存失效策略和主键失效机制"><span class="toc-number">9.</span> <span class="toc-text">redis的缓存失效策略和主键失效机制</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Hexo/" title="Hexo">Hexo<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Redis/" title="Redis">Redis<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Django/" title="Django">Django<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/REST/" title="REST">REST<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Ansible/" title="Ansible">Ansible<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/RBD-Mirror/" title="RBD-Mirror">RBD-Mirror<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/补码/" title="补码">补码<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/通信机制/" title="通信机制">通信机制<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Virtualenv/" title="Virtualenv">Virtualenv<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/callback/" title="callback">callback<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/互联网协议/" title="互联网协议">互联网协议<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Ceph/" title="Ceph">Ceph<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python学习之路/" title="Python学习之路">Python学习之路<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python部落刷题宝/" title="Python部落刷题宝">Python部落刷题宝<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/博客搭建/" title="博客搭建">博客搭建<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/被解放的Django/" title="被解放的Django">被解放的Django<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/计算机基础/" title="计算机基础">计算机基础<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+	<iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=0&isWeibo=0&isFans=0&uid=2826271411&verifier=e270a789&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Gocjy <br/>
+			人类的悲欢并不相通，我只觉得他们吵闹。</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2826271411" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="曹嘉宇">曹嘉宇</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"chown-jane-y"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

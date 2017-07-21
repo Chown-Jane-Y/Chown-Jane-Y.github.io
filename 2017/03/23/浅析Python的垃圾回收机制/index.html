@@ -1,0 +1,568 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>浅析Python的垃圾回收机制 | 狗几</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="曹嘉宇">
+    
+
+    
+    <meta name="description" content="现在的高级语言如java，c#等，都采用了垃圾收集机制，而不再是C/C++里用户自己管理维护内存的方式。自己管理内存极其自由，可以任意申请内存，但如同一把双刃剑，为大量内存泄露，悬空指针等bug埋下隐患。 对于一个字符串、列表、类甚至数值都是对象，且定位简单易用的语言，自然不会让用户去处理如何分配回收内存的问题。python里也同java一样采用了垃圾收集机制，不过不一样的是： python采用的">
+<meta name="keywords" content="Python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅析Python的垃圾回收机制">
+<meta property="og:url" content="http://yoursite.com/2017/03/23/浅析Python的垃圾回收机制/index.html">
+<meta property="og:site_name" content="狗几">
+<meta property="og:description" content="现在的高级语言如java，c#等，都采用了垃圾收集机制，而不再是C/C++里用户自己管理维护内存的方式。自己管理内存极其自由，可以任意申请内存，但如同一把双刃剑，为大量内存泄露，悬空指针等bug埋下隐患。 对于一个字符串、列表、类甚至数值都是对象，且定位简单易用的语言，自然不会让用户去处理如何分配回收内存的问题。python里也同java一样采用了垃圾收集机制，不过不一样的是： python采用的">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://i4.buimg.com/588729/dbd8f4928350912e.jpg">
+<meta property="og:image" content="http://i4.buimg.com/588729/138ef333d4908d0d.jpg">
+<meta property="og:updated_time" content="2017-07-21T05:39:42.263Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="浅析Python的垃圾回收机制">
+<meta name="twitter:description" content="现在的高级语言如java，c#等，都采用了垃圾收集机制，而不再是C/C++里用户自己管理维护内存的方式。自己管理内存极其自由，可以任意申请内存，但如同一把双刃剑，为大量内存泄露，悬空指针等bug埋下隐患。 对于一个字符串、列表、类甚至数值都是对象，且定位简单易用的语言，自然不会让用户去处理如何分配回收内存的问题。python里也同java一样采用了垃圾收集机制，不过不一样的是： python采用的">
+<meta name="twitter:image" content="http://i4.buimg.com/588729/dbd8f4928350912e.jpg">
+
+    
+    <link rel="alternative" href="/atom.xml" title="狗几" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.png">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="狗几" title="狗几"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="狗几">狗几</a></h1>
+				<h2 class="blog-motto">新手程序员，正在学习Python，欢迎交流。</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:yoursite.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/03/23/浅析Python的垃圾回收机制/" title="浅析Python的垃圾回收机制" itemprop="url">浅析Python的垃圾回收机制</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-03-23T02:08:02.000Z" itemprop="datePublished"> 发表于 2017-03-23</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、引用计数机制"><span class="toc-number">1.</span> <span class="toc-text">一、引用计数机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、标记-清除"><span class="toc-number">2.</span> <span class="toc-text">二、标记-清除</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、分代回收"><span class="toc-number">3.</span> <span class="toc-text">三、分代回收</span></a></li></ol>
+		
+		</div>
+		
+		<p>现在的高级语言如java，c#等，都采用了垃圾收集机制，而不再是C/C++里用户自己管理维护内存的方式。自己管理内存极其自由，可以任意申请内存，但如同一把双刃剑，为大量内存泄露，悬空指针等bug埋下隐患。</p>
+<p>对于一个字符串、列表、类甚至数值都是对象，且定位简单易用的语言，自然不会让用户去处理如何分配回收内存的问题。python里也同java一样采用了垃圾收集机制，不过不一样的是：</p>
+<p><strong>python采用的是引用计数机制为主，标记-清除和分代收集两种机制为辅的策略。</strong></p>
+<a id="more"></a>
+<h2 id="一、引用计数机制"><a href="#一、引用计数机制" class="headerlink" title="一、引用计数机制"></a>一、引用计数机制</h2><blockquote>
+<p>为每个内存对象维护一个引用计数。当有新的引用指向某对象时就将该对象的引用计数加一，当指向该对象的引用被销毁时将该计数减一，当计数归零时，就回收该对象所占用的内存资源。</p>
+</blockquote>
+<p>Python里每一个东西都是对象，它们的核心就是一个结构体：<code>PyObject</code><br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"> <span class="keyword">typedef</span> struct_object &#123;</div><div class="line">	 <span class="keyword">int</span> ob_refcnt;</div><div class="line">	 struct_typeobject *ob_type;</div><div class="line">&#125; PyObject;</div></pre></td></tr></table></figure></p>
+<p><code>PyObject</code>是每个对象必有的内容，其中<code>ob_refcnt</code>就是做为引用计数。当一个对象有新的引用时，它的<code>ob_refcnt</code>就会增加，当引用它的对象被删除，它的<code>ob_refcnt</code>就会减少。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">define</span> Py_INCREF(op)   ((op)-&gt;ob_refcnt++) <span class="comment">//增加计数</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> Py_DECREF(op) \ <span class="comment">//减少计数</span></span></div><div class="line">    <span class="keyword">if</span> (--(op)-&gt;ob_refcnt != <span class="number">0</span>) \</div><div class="line">        ; \</div><div class="line">    <span class="keyword">else</span> \</div><div class="line">        __Py_Dealloc((PyObject *)(op))</div></pre></td></tr></table></figure></p>
+<p>当引用计数为0时，该对象生命就结束了。</p>
+<p>用图来解释一下：<br><img src="http://i4.buimg.com/588729/dbd8f4928350912e.jpg" alt="ob_refcnt"></p>
+<p>节点旁的数字代表引用计数。所有对象保存着自己被别人引用的次数，减少一次，则自身减少1，同时自己引用的对象的引用计数也减少1。图中B到D的引用失效，D引用的E的对象计数也减1。D、E引用计数都变为0，被回收。</p>
+<p><strong>引用计数机制的优点</strong>：</p>
+<ul>
+<li>简单易懂</li>
+<li>实时性：一旦没有引用，内存就直接释放了。不用像其他机制等到特定时机。实时性还带来一个好处：处理回收内存的时间分摊到了平时。</li>
+</ul>
+<p><strong>引用计数机制的缺点</strong>：</p>
+<ul>
+<li>维护引用计数消耗资源</li>
+<li>循环引用 </li>
+</ul>
+<p>在如今的硬件水平下，第一个缺点可以接受，但是<strong>循环引用</strong>会导致内存泄漏，会产生严重的后果。什么是循环引用呢？看下面的例子：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">list1 = []     			<span class="comment"># list1的引用计数为1</span></div><div class="line">list2 = []				<span class="comment"># list2的引用计数为1</span></div><div class="line">list1.append(list2)		<span class="comment"># list2的引用计数加1，变为2</span></div><div class="line">list2.append(list1)		<span class="comment"># list1的引用计数加1，变为2</span></div><div class="line"><span class="keyword">del</span> list1				<span class="comment"># list1的引用计数减1，变为1</span></div><div class="line"><span class="keyword">del</span> list2				<span class="comment"># list2的引用计数减2，变为1</span></div></pre></td></tr></table></figure></p>
+<p>list1和list2相互引用后，引用计数都加1。用<code>del</code>删除了用于引用的变量名后，按理说现在不存在其他对象对它们的引用，list1和list2指向的内存应该被回收。但由于list1与list2的引用计数也仍然为1，所占用的内存永远无法被回收，就会导致内存泄漏。</p>
+<p>为了解决这个问题，Python引入了其他回收机制作为辅助，就是标记-清除和分代收集机制。</p>
+<h2 id="二、标记-清除"><a href="#二、标记-清除" class="headerlink" title="二、标记-清除"></a>二、标记-清除</h2><blockquote>
+<p>分两个步骤，一是标记，即从众多的内存对象中区分出不会再被使用的垃圾对象；二是清除，即把标记的垃圾对象清除掉。标记的时候需要确定内存对象的集合Root set，集合里的对象都是可以访问的。如果Root set中的对象引用了其他的对象，那么被引用的对象也不能被标记为垃圾对象。然后从Root set出发，递归遍历Root set能访问到的所有对象，进行标记为不是垃圾对象。遍历结束后，没有被标记的就是垃圾对象。</p>
+</blockquote>
+<p>标记-清除是一种基于追踪（Tracing）回收技术实现的垃圾回收算法，对象之间通过引用（指针）连在一起，构成一个有向图，对象构成这个有向图的节点，而引用关系构成这个有向图的边。从根对象（root object）出发，沿着有向边遍历对象，可达的对象标记为有用的对象，不可达的对象就是要被清除的对象。所谓<strong>根象就是一些全局引用对象和函数栈中的引用</strong>，这些引用所引用的对象是不可被删除的。</p>
+<p><img src="http://i4.buimg.com/588729/138ef333d4908d0d.jpg" alt="Mark&amp;Sweep"></p>
+<p>图中A是根节点，无法通过有向边到达D、E节点，把可到达的节点标为有用节点，回收不可到达的无用节点。</p>
+<p>标记-清除算法作为Python的辅助垃圾收集技术主要处理的是一些容器对象，比如list、dict、tuple，instance等，因为对于字符串、数值对象是不可能造成循环引用问题。Python使用一个双向链表将这些容器对象组织起来。</p>
+<h2 id="三、分代回收"><a href="#三、分代回收" class="headerlink" title="三、分代回收"></a>三、分代回收</h2><blockquote>
+<p>根据一个统计学上的结论，如果一个内存对象在某次Mark过程中发现不是垃圾，那么它短期内成为垃圾的可能性就很小。分代收集将那些在多次垃圾收集过程中都没有被标记为垃圾对象的内存对象集中到另外一个区域——年老的区域，即这个区域中的内存对象年龄比较大。因为年老区域内内存对象短期内变成垃圾的概率很低，所以这些区域的垃圾收集频率可以降低，相对的，对年轻区域内的对象进行高频率的垃圾收集。这样可以提高垃圾收集的整体性能。</p>
+</blockquote>
+<p>基本假说：大部分新产生的对象会在较短时间内成了垃圾，而经过一定时间依然存活的对象一般寿命较长。</p>
+<p>依据此假说，那么只要扫描新生代的对象就可以实现大部分垃圾的回收。</p>
+<p>Python将内存根据对象的存活时间划分为不同的集合，每个集合称为一个代，<strong>Python将内存分为了3代，分别为年轻代（第0代）、中年代（第1代）、老年代（第2代）</strong>，他们对应的是3个链表，它们的垃圾收集频率与对象的存活时间的增大而减小。</p>
+<p>比方说年轻代清理10次后，进行一次中年代的垃圾清理；中年代清理10次后，再进行一次老年代的垃圾清理。以这个频率来进行分代回收，这个频率可以自己设置。</p>
+<p>新创建的对象都会分配在年轻代，年轻代链表的总数达到上限时，Python垃圾收集机制就会被触发，把那些可以被回收的对象回收掉，而那些不会回收的对象就会被移到中年代去。依此类推，老年代中的对象是存活时间最久的对象，甚至是存活于整个系统的生命周期内。同时，分代回收是建立在标记清除技术基础之上。</p>
+<!--more-->
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Python学习之路/">Python学习之路</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Python/">Python</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	<div class="share-jiathis">
+	  
+<div class="jiathis_style_24x24">
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_googleplus"></a>
+	<a class="jiathis_button_douban"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=2126358
+2126358" charset="utf-8"></script>      
+
+	 </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/03/26/Redis需要了解的几个知识点/" title="Redis需要了解的几个知识点">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Redis需要了解的几个知识点</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/03/22/Python函数参数传递：不传值也不传引用/"  title="Python函数参数传递：不传值也不传引用">
+ <strong>下一篇：</strong><br/> 
+ <span>Python函数参数传递：不传值也不传引用
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2017/03/23/浅析Python的垃圾回收机制/" data-title="浅析Python的垃圾回收机制" data-url="http://yoursite.com/2017/03/23/浅析Python的垃圾回收机制/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、引用计数机制"><span class="toc-number">1.</span> <span class="toc-text">一、引用计数机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、标记-清除"><span class="toc-number">2.</span> <span class="toc-text">二、标记-清除</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、分代回收"><span class="toc-number">3.</span> <span class="toc-text">三、分代回收</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Hexo/" title="Hexo">Hexo<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Redis/" title="Redis">Redis<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Django/" title="Django">Django<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/REST/" title="REST">REST<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Ansible/" title="Ansible">Ansible<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/RBD-Mirror/" title="RBD-Mirror">RBD-Mirror<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/补码/" title="补码">补码<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/通信机制/" title="通信机制">通信机制<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Virtualenv/" title="Virtualenv">Virtualenv<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/callback/" title="callback">callback<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/互联网协议/" title="互联网协议">互联网协议<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Ceph/" title="Ceph">Ceph<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python学习之路/" title="Python学习之路">Python学习之路<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python部落刷题宝/" title="Python部落刷题宝">Python部落刷题宝<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/博客搭建/" title="博客搭建">博客搭建<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/被解放的Django/" title="被解放的Django">被解放的Django<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/计算机基础/" title="计算机基础">计算机基础<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+	<iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=0&isWeibo=0&isFans=0&uid=2826271411&verifier=e270a789&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Gocjy <br/>
+			人类的悲欢并不相通，我只觉得他们吵闹。</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2826271411" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="曹嘉宇">曹嘉宇</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"chown-jane-y"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

@@ -1,0 +1,591 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>了解持续集成、持续交付与持续部署 | 狗几</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="曹嘉宇">
+    
+
+    
+    <meta name="description" content="不管你是运维还是开发，都经常会听到持续集成，持续交付，持续部署几个概念。这三者究竟是什么，有何联系和区别呢？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="了解持续集成、持续交付与持续部署">
+<meta property="og:url" content="http://yoursite.com/2017/03/27/了解持续集成、持续交付与持续部署/index.html">
+<meta property="og:site_name" content="狗几">
+<meta property="og:description" content="不管你是运维还是开发，都经常会听到持续集成，持续交付，持续部署几个概念。这三者究竟是什么，有何联系和区别呢？">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://i4.buimg.com/588729/9d1a3ffc2b178f7c.png">
+<meta property="og:image" content="http://i4.buimg.com/588729/a5bfdc951862afc8.png">
+<meta property="og:image" content="http://i4.buimg.com/588729/a592accc18e3db46.png">
+<meta property="og:image" content="http://i4.buimg.com/588729/cdd193408a000097.png">
+<meta property="og:image" content="http://i4.buimg.com/588729/46c5b5549a561740.png">
+<meta property="og:updated_time" content="2017-07-21T05:39:42.254Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="了解持续集成、持续交付与持续部署">
+<meta name="twitter:description" content="不管你是运维还是开发，都经常会听到持续集成，持续交付，持续部署几个概念。这三者究竟是什么，有何联系和区别呢？">
+<meta name="twitter:image" content="http://i4.buimg.com/588729/9d1a3ffc2b178f7c.png">
+
+    
+    <link rel="alternative" href="/atom.xml" title="狗几" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.png">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="狗几" title="狗几"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="狗几">狗几</a></h1>
+				<h2 class="blog-motto">新手程序员，正在学习Python，欢迎交流。</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:yoursite.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/03/27/了解持续集成、持续交付与持续部署/" title="了解持续集成、持续交付与持续部署" itemprop="url">了解持续集成、持续交付与持续部署</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-03-27T09:09:28.000Z" itemprop="datePublished"> 发表于 2017-03-27</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#持续与集成的概念"><span class="toc-number">1.</span> <span class="toc-text">持续与集成的概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开发生命周期"><span class="toc-number">2.</span> <span class="toc-text">开发生命周期</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#持续集成"><span class="toc-number">3.</span> <span class="toc-text">持续集成</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#持续集成概念"><span class="toc-number">3.1.</span> <span class="toc-text">持续集成概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何持续集成"><span class="toc-number">3.2.</span> <span class="toc-text">如何持续集成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#持续集成的好处"><span class="toc-number">3.3.</span> <span class="toc-text">持续集成的好处</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#持续交付"><span class="toc-number">4.</span> <span class="toc-text">持续交付</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#持续交付概念"><span class="toc-number">4.1.</span> <span class="toc-text">持续交付概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#持续交付的好处"><span class="toc-number">4.2.</span> <span class="toc-text">持续交付的好处</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#持续部署"><span class="toc-number">5.</span> <span class="toc-text">持续部署</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#持续部署概念"><span class="toc-number">5.1.</span> <span class="toc-text">持续部署概念</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#整个流程"><span class="toc-number">6.</span> <span class="toc-text">整个流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#提交"><span class="toc-number">6.1.</span> <span class="toc-text">提交</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试（第一轮）"><span class="toc-number">6.2.</span> <span class="toc-text">测试（第一轮）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#构建"><span class="toc-number">6.3.</span> <span class="toc-text">构建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试（第二轮）"><span class="toc-number">6.4.</span> <span class="toc-text">测试（第二轮）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#部署"><span class="toc-number">6.5.</span> <span class="toc-text">部署</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#回滚"><span class="toc-number">6.6.</span> <span class="toc-text">回滚</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>不管你是运维还是开发，都经常会听到持续集成，持续交付，持续部署几个概念。这三者究竟是什么，有何联系和区别呢？</p>
+<p><img src="http://i4.buimg.com/588729/9d1a3ffc2b178f7c.png" alt="workflow"></p>
+<a id="more"></a>
+<h2 id="持续与集成的概念"><a href="#持续与集成的概念" class="headerlink" title="持续与集成的概念"></a>持续与集成的概念</h2><p><strong>集成</strong>，外行人光听这个词可能并不知道指的是什么意思，其实很简单，通俗地讲就是合在一块。把代码commit到SVN或Git上是集成代码，编译代码是集成逻辑，测试是集成功能……就是把所有开发人员的部分集成在一起，使之成为一个可用的完整产品。<strong>也就是开发过程中的编译、测试、打包</strong>。</p>
+<p>但是集成也不是简单的杂糅起来，集成过程中很可能会出错，出错了大家一起DEBUG就好了。</p>
+<p>那么问题来了，<strong>是所有功能都开发完再进行集成，还是每完成一个小功能就集成呢？</strong>似乎最后的结果都是一样的呀。但在实际开发过程中，这两者的开发效率是天差地别的。如果是所有功能都完成再集成的话，一旦集成出错，就很难定位到问题所在；而如果是一个个小功能进行集成，出错的话就很容易定位问题所在。就好比铺地砖，正确的做法都是切割一块铺一块，如果是先全部切割好再铺的话，如果尺寸有误，那么返工的成本就很大了。</p>
+<p>切割好一块铺一块，完成一个功能就进行一次集成，这就是<strong>持续</strong>的概念。不断的获取反馈，响应反馈。每完成一个完整的部分，就向下个环节交付，发现问题可以马上调整，使问题不会放大到其他部分和后面的环节。</p>
+<h2 id="开发生命周期"><a href="#开发生命周期" class="headerlink" title="开发生命周期"></a>开发生命周期</h2><p>一般来说，一个产品的开发到上线的几个阶段如下：</p>
+<blockquote>
+<p>编码 –&gt; 构建 –&gt; 集成 –&gt; 测试 –&gt; 交付 –&gt; 部署</p>
+</blockquote>
+<p>持续集成、持续交付和持续部署也就是要把集成、交付、部署这三个环节自动化。一是为了节省人力，二是可以快速定位问题，大大提升了开发的效率。</p>
+<p>如下图所示，「持续集成（Continuous Integration）」、「持续交付（Continuous Delivery）」和「持续部署（Continuous Deployment）」有着不同的软件自动化交付周期。</p>
+<p><img src="http://i4.buimg.com/588729/a5bfdc951862afc8.png" alt="lifecycle"></p>
+<h2 id="持续集成"><a href="#持续集成" class="headerlink" title="持续集成"></a>持续集成</h2><h3 id="持续集成概念"><a href="#持续集成概念" class="headerlink" title="持续集成概念"></a>持续集成概念</h3><p>持续集成是指软件<strong>个人研发的部分向软件整体交付</strong>(commit)，频繁进行集成以便更快地发现其中的错误。</p>
+<p><img src="http://i4.buimg.com/588729/a592accc18e3db46.png" alt="Continuous Integration"></p>
+<p>持续集成强调开发人员<strong>提交了新代码之后，立刻进行构建、（单元）测试</strong>。根据测试结果，可以确定新代码和原有代码能否正确地集成在一起。如上图所示，通过BUILD和TEST，开发人员会迅速得到一个RESULT，如果返回的结果有错，就可以立即对错误进行处理。</p>
+<h3 id="如何持续集成"><a href="#如何持续集成" class="headerlink" title="如何持续集成"></a>如何持续集成</h3><ul>
+<li>全面的<strong>自动化测试</strong>。这是实践持续集成&amp;持续部署的基础。</li>
+<li>灵活的基础设施。容器，虚拟机的存在让开发人员和 QA 人员不必再大费周折；</li>
+<li><strong>版本控制工具</strong>。如 Git，CVS，SVN 等；</li>
+<li>自动化的构建和软件发布流程的工具，如 Jenkins，flow.ci；</li>
+<li>反馈机制。如构建/测试的失败，可以快速地反馈到相关负责人，以尽快解决。</li>
+</ul>
+<h3 id="持续集成的好处"><a href="#持续集成的好处" class="headerlink" title="持续集成的好处"></a>持续集成的好处</h3><ul>
+<li>“快速失败”，在对产品没有风险的情况下进行测试，并快速响应；</li>
+<li>最大限度地减少风险，降低修复错误代码的成本；</li>
+<li>将重复性的手工流程自动化，让工程师更加专注于代码；</li>
+<li>保持频繁部署，快速生成可部署的软件；</li>
+<li>提高项目的能见度，方便团队成员了解项目的进度和成熟度；</li>
+</ul>
+<h2 id="持续交付"><a href="#持续交付" class="headerlink" title="持续交付"></a>持续交付</h2><h3 id="持续交付概念"><a href="#持续交付概念" class="headerlink" title="持续交付概念"></a>持续交付概念</h3><p>持续交付在持续集成的基础上，将集成后的代码部署到更贴近真实运行环境的「类生产环境」中。</p>
+<p><img src="http://i4.buimg.com/588729/cdd193408a000097.png" alt="Continuous Delivery"></p>
+<p>试想想，如果说等到所有东西都完成了才向下个环节交付，导致所有的问题只能再最后才爆发出来，解决成本巨大甚至无法解决。比如，我们完成单元测试后，可以把代码部署到连接数据库的 Staging 环境中进行更多的自动化测试。如果代码没有问题，可以继续手动部署到生产环境中。</p>
+<h3 id="持续交付的好处"><a href="#持续交付的好处" class="headerlink" title="持续交付的好处"></a>持续交付的好处</h3><ul>
+<li>快速发布。能够应对业务需求，并更快地实现软件价值。</li>
+<li>编码-&gt;测试-&gt;上线-&gt;交付的频繁迭代周期缩短，同时获得迅速反馈；</li>
+<li>高质量的软件发布标准。整个交付过程标准化、可重复、可靠，</li>
+<li>整个交付过程进度可视化，方便团队人员了解项目成熟度；</li>
+</ul>
+<h2 id="持续部署"><a href="#持续部署" class="headerlink" title="持续部署"></a>持续部署</h2><h3 id="持续部署概念"><a href="#持续部署概念" class="headerlink" title="持续部署概念"></a>持续部署概念</h3><p>持续部署则是在持续交付的基础上，把部署到生产环境的过程自动化。<strong>当交付的代码通过评审之后，自动部署到生产环境中</strong>。持续部署是持续交付的最高阶段。这意味着，所有通过了一系列的自动化测试的改动都将自动部署到生产环境。</p>
+<p><img src="http://i4.buimg.com/588729/46c5b5549a561740.png" alt="Continuous Deployment"></p>
+<p>持续部署的目标是，代码在任何时刻都是可部署的，可以进入生产阶段。</p>
+<h2 id="整个流程"><a href="#整个流程" class="headerlink" title="整个流程"></a>整个流程</h2><p>根据持续集成的设计，代码从提交到生产，整个过程有以下几步。</p>
+<h3 id="提交"><a href="#提交" class="headerlink" title="提交"></a>提交</h3><p>流程的第一步，是开发者向代码仓库提交代码。所有后面的步骤都始于本地代码的一次提交（commit）。</p>
+<h3 id="测试（第一轮）"><a href="#测试（第一轮）" class="headerlink" title="测试（第一轮）"></a>测试（第一轮）</h3><p>代码仓库对commit操作配置了钩子（hook），只要提交代码或者合并进主干，就会跑自动化测试。</p>
+<p>测试有几种:</p>
+<ul>
+<li>单元测试：针对函数或模块的测试</li>
+<li>集成测试：针对整体产品的某个功能的测试，又称功能测试</li>
+<li>端对端测试：从用户界面直达数据库的全链路测试</li>
+</ul>
+<p>第一轮至少要跑单元测试。</p>
+<h3 id="构建"><a href="#构建" class="headerlink" title="构建"></a>构建</h3><p>通过第一轮测试，代码就可以合并进主干，就算可以交付了。</p>
+<p>交付后，就先进行构建（build），再进入第二轮测试。所谓构建，指的是将源码转换为可以运行的实际代码，比如安装依赖，配置各种资源（样式表、JS脚本、图片）等等。</p>
+<p>常用的构建工具如下。</p>
+<ul>
+<li>Jenkins</li>
+<li>Travis</li>
+<li>Codeship</li>
+<li>Strider</li>
+</ul>
+<h3 id="测试（第二轮）"><a href="#测试（第二轮）" class="headerlink" title="测试（第二轮）"></a>测试（第二轮）</h3><p>构建完成，就要进行第二轮测试。如果第一轮已经涵盖了所有测试内容，第二轮可以省略，当然，这时构建步骤也要移到第一轮测试前面。</p>
+<p>第二轮是全面测试，单元测试和集成测试都会跑，有条件的话，也要做端对端测试。所有测试以自动化为主，少数无法自动化的测试用例，就要人工跑。</p>
+<p>需要强调的是，新版本的每一个更新点都必须测试到。如果测试的覆盖率不高，进入后面的部署阶段后，很可能会出现严重的问题。</p>
+<h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><p>通过了第二轮测试，当前代码就是一个可以直接部署的版本（artifact）。将这个版本的所有文件打包（ tar filename.tar * ）存档，发到生产服务器。</p>
+<p>生产服务器将打包文件，解包成本地的一个目录，再将运行路径的符号链接（symlink）指向这个目录，然后重新启动应用。这方面的部署工具有Ansible，Chef，Puppet等。</p>
+<h3 id="回滚"><a href="#回滚" class="headerlink" title="回滚"></a>回滚</h3><p>一旦当前版本发生问题，就要回滚到上一个版本的构建结果。最简单的做法就是修改一下符号链接，指向上一个版本的目录。</p>
+<hr>
+<blockquote>
+<p>参考<br><a href="http://www.ruanyifeng.com/blog/2015/09/continuous-integration.html" target="_blank" rel="external">持续集成是什么？ - 阮一峰的网络日志</a><br><a href="http://blog.flow.ci/cicd_difference/" target="_blank" rel="external">谈谈持续集成，持续交付，持续部署之间的区别</a></p>
+</blockquote>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	<div class="share-jiathis">
+	  
+<div class="jiathis_style_24x24">
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_googleplus"></a>
+	<a class="jiathis_button_douban"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=2126358
+2126358" charset="utf-8"></script>      
+
+	 </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/03/28/灵活的回调函数/" title="灵活的回调函数">
+  <strong>上一篇：</strong><br/>
+  <span>
+  灵活的回调函数</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/03/26/Redis的两种持久化方式及原理/"  title="Redis的两种持久化方式及原理">
+ <strong>下一篇：</strong><br/> 
+ <span>Redis的两种持久化方式及原理
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2017/03/27/了解持续集成、持续交付与持续部署/" data-title="了解持续集成、持续交付与持续部署" data-url="http://yoursite.com/2017/03/27/了解持续集成、持续交付与持续部署/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#持续与集成的概念"><span class="toc-number">1.</span> <span class="toc-text">持续与集成的概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开发生命周期"><span class="toc-number">2.</span> <span class="toc-text">开发生命周期</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#持续集成"><span class="toc-number">3.</span> <span class="toc-text">持续集成</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#持续集成概念"><span class="toc-number">3.1.</span> <span class="toc-text">持续集成概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何持续集成"><span class="toc-number">3.2.</span> <span class="toc-text">如何持续集成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#持续集成的好处"><span class="toc-number">3.3.</span> <span class="toc-text">持续集成的好处</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#持续交付"><span class="toc-number">4.</span> <span class="toc-text">持续交付</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#持续交付概念"><span class="toc-number">4.1.</span> <span class="toc-text">持续交付概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#持续交付的好处"><span class="toc-number">4.2.</span> <span class="toc-text">持续交付的好处</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#持续部署"><span class="toc-number">5.</span> <span class="toc-text">持续部署</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#持续部署概念"><span class="toc-number">5.1.</span> <span class="toc-text">持续部署概念</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#整个流程"><span class="toc-number">6.</span> <span class="toc-text">整个流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#提交"><span class="toc-number">6.1.</span> <span class="toc-text">提交</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试（第一轮）"><span class="toc-number">6.2.</span> <span class="toc-text">测试（第一轮）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#构建"><span class="toc-number">6.3.</span> <span class="toc-text">构建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试（第二轮）"><span class="toc-number">6.4.</span> <span class="toc-text">测试（第二轮）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#部署"><span class="toc-number">6.5.</span> <span class="toc-text">部署</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#回滚"><span class="toc-number">6.6.</span> <span class="toc-text">回滚</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Hexo/" title="Hexo">Hexo<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Redis/" title="Redis">Redis<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Django/" title="Django">Django<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/REST/" title="REST">REST<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Ansible/" title="Ansible">Ansible<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/RBD-Mirror/" title="RBD-Mirror">RBD-Mirror<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/补码/" title="补码">补码<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/通信机制/" title="通信机制">通信机制<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Virtualenv/" title="Virtualenv">Virtualenv<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/callback/" title="callback">callback<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/互联网协议/" title="互联网协议">互联网协议<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Ceph/" title="Ceph">Ceph<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python学习之路/" title="Python学习之路">Python学习之路<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python部落刷题宝/" title="Python部落刷题宝">Python部落刷题宝<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/博客搭建/" title="博客搭建">博客搭建<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/被解放的Django/" title="被解放的Django">被解放的Django<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/计算机基础/" title="计算机基础">计算机基础<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+	<iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=0&isWeibo=0&isFans=0&uid=2826271411&verifier=e270a789&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Gocjy <br/>
+			人类的悲欢并不相通，我只觉得他们吵闹。</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2826271411" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="曹嘉宇">曹嘉宇</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"chown-jane-y"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

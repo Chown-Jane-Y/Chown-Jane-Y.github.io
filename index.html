@@ -1,0 +1,946 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>狗几</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="曹嘉宇">
+    
+
+    
+    <meta name="description" content="个人技术学习博客，Python/Web/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="狗几">
+<meta property="og:url" content="http://yoursite.com/index.html">
+<meta property="og:site_name" content="狗几">
+<meta property="og:description" content="个人技术学习博客，Python/Web/">
+<meta property="og:locale" content="zh-CN">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="狗几">
+<meta name="twitter:description" content="个人技术学习博客，Python/Web/">
+
+    
+    <link rel="alternative" href="/atom.xml" title="狗几" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.png">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="狗几" title="狗几"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="狗几">狗几</a></h1>
+				<h2 class="blog-motto">新手程序员，正在学习Python，欢迎交流。</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:yoursite.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main">
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/07/21/RBD-Mirror功能的原理与实践/" title="RBD-Mirror功能的原理与实践" itemprop="url">RBD-Mirror功能的原理与实践</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-07-21T08:08:15.000Z" itemprop="datePublished"> 发表于 2017-07-21</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <a id="more"></a>
+<h2 id="Ceph的组成"><a href="#Ceph的组成" class="headerlink" title="Ceph的组成"></a>Ceph的组成</h2><p><img src="./1500603967859.png" alt="Alt text"></p>
+<h2 id="为什么要rbd-mirror"><a href="#为什么要rbd-mirror" class="headerlink" title="为什么要rbd-mirror"></a>为什么要rbd-mirror</h2><p>Ceph采用的是<strong>强一致性同步模型</strong>，所有副本都必须完成写操作才算一次写入成功，一个请求需要异地返回再确认完成，如果副本在异地，网络延迟就会很大，拖垮整个集群的写性能。因此，Ceph集群很少有跨域部署的，也就缺乏异地容灾。</p>
+<p>于是从2015年增加了一个新功能——RBD Mirror，用以解决两个集群间异步备份的问题。</p>
+<p><img src="./1500435676686.png" alt="Alt text"></p>
+<h2 id="rbd-mirror设计原则"><a href="#rbd-mirror设计原则" class="headerlink" title="rbd-mirror设计原则"></a>rbd-mirror设计原则</h2><ol>
+<li>Replication needs to be asynchronous</li>
+</ol>
+<ul>
+<li>IO shouldn’t be blocked due to slow WAN</li>
+<li>Support transient connectivity issues</li>
+</ul>
+<ol>
+<li>Replication needs to be crash consistent</li>
+</ol>
+<ul>
+<li>Respect write barriers</li>
+</ul>
+<ol>
+<li>Easy management</li>
+<li>Expect failure can happen any time</li>
+</ol>
+<blockquote>
+<p>注：write barriers 是一种内核机制，用来确保文件系统metadata被正确并有序的写入持久化存储介质，不管电源是否突然关闭，都可以被确保。</p>
+<p>注：任何文件系统中的数据分为数据和元数据。数据是指普通文件中的实际数据，而元数据指用来描述一个文件的特征的系统数据，诸如访问权限、文件拥有者以及文件数据块的分布信息(inode…)等等。在集群文件系统中，分布信息包括文件在磁盘上的位置以及磁盘在集群中的位置。用户需要操作一个文件必须首先得到它的元数据，才能定位到文件的位置并且得到文件的内容或相关属性。</p>
+</blockquote>
+<h2 id="rbd-mirror的原理"><a href="#rbd-mirror的原理" class="headerlink" title="rbd-mirror的原理"></a>rbd-mirror的原理</h2><p>RBD Mirror原理其实<strong>和MySQL的主从同步原理非常类似，前者基于journaling，后者基于binlog，简单地说就是利用日志进行回放(replay)</strong>：通过在存储系统中增加Mirror组件，采用异步复制的方式，实现异地备份。(此处的journal是指Ceph RBD的journal，而不是OSD的journal)</p>
+<p>该能力利用了 RBD image 的日志特性，以确保集群间的副本崩溃一致性。镜像功能需要在同伴集群（ peer clusters ）中的每一个对应的 pool 上进行配置，可设定自动备份某个存储池内的所有 images 或仅备份 images 的一个特定子集。 rbd-mirror 守护进程负责从远端集群拉取 image 的更新，并写入本地集群的对应 image 中。</p>
+<p>当RBD Journal功能打开后，所有的数据更新请求会<strong>先写入RBD Journal</strong>，然后后台线程再把数据从Journal区域刷新到对应的image区域。RBD journal提供了比较完整的日志记录、读取、变更通知以及日志回收和空间释放等功能，可以认为是一个分布式的日志系统。</p>
+<p><img src="./rbd-mirror.png" alt="Alt text"></p>
+<p>上图是<strong>rbd-mirror的工作流程</strong>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">1、当接收到一个写入请求后，I/O会先写入主集群的Image Journal</div><div class="line"></div><div class="line">2、Journal写入成功后，通知客户端</div><div class="line"></div><div class="line">3、客户端得到响应后，开始写入image</div><div class="line"></div><div class="line">3、备份集群的mirror进程发现主集群的Journal有更新后，从主集群的Journal读取数据，写入备份集群（和上面序号一样，是因为这两个过程同时发生）</div><div class="line"></div><div class="line">4、备份集群写入成功后，会更新主集群Journal中的元数据，表示该I/O的Journal已经同步完成</div><div class="line"></div><div class="line">5、主集群会定期检查，删除已经写入备份集群的Journal数据。</div></pre></td></tr></table></figure></p>
+<p>以上就是一个rbd-mirror工作周期内的流程，在现有的Jewel版本中30s为一次工作周期，暂时不能改变这个周期时间。</p>
+<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><p> 1、当副本在异地的情况下，减少了单个集群不同节点间的数据写入延时；</p>
+<p>2、减少本地集群或异地集群由于意外断电导致的数据丢失。</p>
+<h2 id="单向备份与双向备份"><a href="#单向备份与双向备份" class="headerlink" title="单向备份与双向备份"></a>单向备份与双向备份</h2><p>双向备份：两个集群之间互相同步，两个集群都要运行rbd-mirror进程。<br>单向备份：分为主集群和从集群，只在从集群运行rbd-mirror进程，主集群的修改会自动同步到从集群。</p>
+<p><strong>在CSM中采用的是单向备份。</strong></p>
+<h2 id="rbd-mirror的配置"><a href="#rbd-mirror的配置" class="headerlink" title="rbd-mirror的配置"></a>rbd-mirror的配置</h2><h3 id="安装须知"><a href="#安装须知" class="headerlink" title="安装须知"></a>安装须知</h3><ul>
+<li>RBD 镜像功能需要 Ceph Jewel 或更新的发行版本。</li>
+<li>目前Jewel版本只支持一对一，不支持一对多。</li>
+<li>两个集群 (local和remote) 需要能够互通。</li>
+<li>RBD需要开启journal特性， 启动后会记录image的事件。</li>
+</ul>
+<h3 id="1、安装rbd-mirror"><a href="#1、安装rbd-mirror" class="headerlink" title="1、安装rbd-mirror"></a>1、安装rbd-mirror</h3><p><code>rbd-mirror</code>一个新的守护程序：它将会负责将一个镜像从一个集群同步到另一个，如果是双向备份，<code>rbd-mirror</code>需要在两个集群上都安装，单向备份的话只需要在从集群中安装即可，它会连接本地和远程的集群。（在jewel版本中还是一对一的方式，在以后的版本中会实现一对多的，所以在以后的版本可以配置一对多的备份）</p>
+<p>rbd-mirror的每个实例必须能够同时连接到两个Ceph集群，因为需要同两个集群都进行数据通信。</p>
+<p><strong>每个Ceph集群只运行一个rbd-mirror进程。</strong></p>
+<p>配置yum源：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[rbd]</div><div class="line">name=rbd</div><div class="line">baseurl=http://mirrors.aliyun.com/ceph/rpm-jewel/el7/x86_64</div><div class="line">enabled=1</div><div class="line">gpgcheck=0</div></pre></td></tr></table></figure></p>
+<p>安装<code>rbd-mirror</code>：<br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">yum install -y rbd-mirror</div></pre></td></tr></table></figure></p>
+<h3 id="2、拷贝配置文件到其他集群"><a href="#2、拷贝配置文件到其他集群" class="headerlink" title="2、拷贝配置文件到其他集群"></a>2、拷贝配置文件到其他集群</h3><p><code>rbd-mirror</code>需要连接主集群和从集群，是通过集群的配置文件和密钥连接的。在ceph中，配置文件的名字和集群名是对应的，比方说名为<code>local</code>的集群，配置文件为<code>local.conf</code>。默认集群名为<code>ceph</code>，配置文件则为<code>ceph.conf</code>。密钥是用来验证是否有权力访问该集群，所以也是必须的。</p>
+<p>连接<code>remote</code>和<code>local</code>两个集群，就是把两个集群的配置文件和密钥复制到对方的ceph配置文件目录中：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">scp local.conf local.client.admin.keyring remote1:/etc/ceph/</div><div class="line">scp local.conf local.client.admin.keyring remote2:/etc/ceph/</div><div class="line">scp local.conf local.client.admin.keyring remote3:/etc/ceph/</div><div class="line">scp remote.conf remote.client.admin.keyring local1:/etc/ceph/</div><div class="line">scp remote.conf remote.client.admin.keyring local1:/etc/ceph/</div><div class="line">scp remote.conf remote.client.admin.keyring local1:/etc/ceph/</div></pre></td></tr></table></figure>
+<p>在所有节点上执行以下命令，更改权限：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">chown ceph:ceph -R /etc/ceph</div></pre></td></tr></table></figure></p>
+<p>在两个集群上执行下面的命令：<br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">ceph --cluster=local mon stat</div><div class="line">e1: <span class="number">1</span> mons at &#123;local1=<span class="number">192.10</span>.<span class="number">10.170</span>:<span class="number">6789</span>/<span class="number">0</span>&#125;, election epoch <span class="number">5</span>, quorum <span class="number">0</span> local1</div><div class="line"></div><div class="line">ceph --cluster=remote mon stat</div><div class="line">e1: <span class="number">1</span> mons at &#123;remote1=<span class="number">192.10</span>.<span class="number">10.174</span>:<span class="number">6789</span>/<span class="number">0</span>&#125;, election epoch <span class="number">3</span>, quorum <span class="number">0</span> remote1</div></pre></td></tr></table></figure></p>
+<p>如果能够互相查看集群的状态，则说明两个集群可以互相通信。</p>
+<p>###3、创建存储池</p>
+<p>创建一个用于测试的存储池：<br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">ceph osd pool create rbdmirror <span class="number">100</span> <span class="number">100</span> replicated --cluster=local</div><div class="line">pool <span class="string">'rbdmirror'</span> created</div><div class="line"></div><div class="line">ceph osd pool create rbdmirror <span class="number">100</span> <span class="number">100</span> replicated --cluster=remote</div><div class="line">pool <span class="string">'rbdmirror'</span> created</div></pre></td></tr></table></figure></p>
+<h3 id="4、启用镜像功能"><a href="#4、启用镜像功能" class="headerlink" title="4、启用镜像功能"></a>4、启用镜像功能</h3><p>镜像功能分为两种模式：</p>
+<ul>
+<li><p>存储池模式<br>一个存储池内的所有镜像都会进行备份</p>
+</li>
+<li><p>镜像模式<br>只有指定的镜像才会进行备份</p>
+</li>
+</ul>
+<p>这里使用的是存储池模式，开启存储池<code>rbdmirror</code>的镜像功能：<br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">rbd --cluster=local mirror pool enable rbdmirror pool</div><div class="line">rbd --cluster=remote mirror pool enable rbdmirror pool</div></pre></td></tr></table></figure></p>
+<h3 id="5、增加同伴集群"><a href="#5、增加同伴集群" class="headerlink" title="5、增加同伴集群"></a>5、增加同伴集群</h3><p>把<code>local</code>和<code>remote</code>设为同伴，这个是为了让rbd-mirror进程找到它peer的集群的存储池：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">rbd mirror pool peer add rbdmirror client.admin@remote --cluster=local</div><div class="line">rbd mirror pool peer add rbdmirror client.admin@local --cluster=remote</div></pre></td></tr></table></figure>
+<p>查看peer的情况：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">rbd mirror pool info --pool=rbdmirror --cluster=local</div><div class="line"></div><div class="line">[root@remote1 ~]# rbd mirror pool info --pool=mirror --cluster=local</div><div class="line">Mode: pool</div><div class="line">Peers: </div><div class="line">  UUID                                 NAME   CLIENT       </div><div class="line">  f0929e85<span class="number">-259</span>d<span class="number">-450b</span><span class="number">-917e-9</span>eb231b7e43b remote client.admin </div><div class="line"> </div><div class="line">[root@remote1 ~]# rbd mirror pool info --pool=mirror --cluster=remote</div><div class="line">Mode: pool</div><div class="line">Peers: </div><div class="line">  UUID                                 NAME  CLIENT       </div><div class="line">  <span class="number">5851b</span>a6a-e383<span class="number">-4</span>ef0<span class="number">-9b</span>9d<span class="number">-5</span>ae34c9518a6 local client.admin</div></pre></td></tr></table></figure></p>
+<h3 id="6、主集群创建RBD"><a href="#6、主集群创建RBD" class="headerlink" title="6、主集群创建RBD"></a>6、主集群创建RBD</h3><p>创建一个测试用的RBD：<br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">rbd create rbdmirror/testrbd --size=<span class="number">1024</span> --cluster=local</div></pre></td></tr></table></figure></p>
+<h3 id="7、开启jounaling特性"><a href="#7、开启jounaling特性" class="headerlink" title="7、开启jounaling特性"></a>7、开启jounaling特性</h3><p> 启动后会才会记录image的事件，才可以被rbd-mirror检测到并同步到从集群：<br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">rbd feature enable rbdmirror/testrbd journaling --cluster=local</div></pre></td></tr></table></figure></p>
+<h3 id="8、查看同步状态"><a href="#8、查看同步状态" class="headerlink" title="8、查看同步状态"></a>8、查看同步状态</h3><p>开启后，会开始自动同步到<code>remote</code>集群，可以用命令查看同步的状态。</p>
+<p>pool正在同步的状态<code>syncing</code>：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[root@remote1 ~]<span class="meta"># rbd mirror pool status --pool=rbdmirror --cluster=remote</span></div><div class="line">health: WARNING</div><div class="line">images: <span class="number">2</span> total</div><div class="line">    <span class="number">1</span> syncing</div><div class="line">    <span class="number">1</span> replaying</div></pre></td></tr></table></figure></p>
+<p>同步完成显示<code>replaying</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[root@remote1 ~]# rbd mirror pool status --pool=rbdmirror --cluster=remote</div><div class="line">health: OK</div><div class="line">images: 2 total</div><div class="line">    2 replaying</div></pre></td></tr></table></figure></p>
+<p>Image正在同步的状态<code>`up+syncing</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">[root@remote1 ~]# rbd mirror image status rbdmirror/testrbd --cluster=remote</div><div class="line">rbd: error opening image test3: (2) No such file or directory</div><div class="line">[root@remote1 ~]# rbd mirror image status rbdmirror/testrbd --cluster=remote</div><div class="line">test3:</div><div class="line">  global_id:   fc35d898-24c3-40eb-9539-b5a559b8f8c5</div><div class="line">  state:       up+syncing</div><div class="line">  description: bootstrapping, OPEN_REMOTE_IMAGE</div><div class="line">  last_update: 2017-07-19 16:22:55</div></pre></td></tr></table></figure></p>
+<p>同步完成<code>up+replaying</code>：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[root@remote1 ~]<span class="meta"># rbd mirror image status rbdmirror/testrbd --cluster=remote</span></div><div class="line">test2:</div><div class="line">  global_id:   <span class="number">9</span>d376ad7<span class="number">-9</span>ae9<span class="number">-4</span>a50-b132<span class="number">-924</span>a6063c67d</div><div class="line">  state:       up+replaying</div><div class="line">  description: replaying, master_position=[object_number=<span class="number">3</span>, tag_tid=<span class="number">1</span>, entry_tid=<span class="number">3</span>], mirror_position=[], entries_behind_master=<span class="number">3</span></div><div class="line">  last_update: <span class="number">2017</span><span class="number">-07</span><span class="number">-19</span> <span class="number">16</span>:<span class="number">21</span>:<span class="number">31</span></div></pre></td></tr></table></figure></p>
+<p>9、查看image的信息</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">[root@remote1 ~]# rbd info mirror/test1 --cluster=remote</div><div class="line">rbd image 'testrbd':</div><div class="line">	size 128 MB in 32 objects</div><div class="line">	order 22 (4096 kB objects)</div><div class="line">	block_name_prefix: rbd_data.575d12200854</div><div class="line">	format: 2</div><div class="line">	features: layering, exclusive-lock, object-map, fast-diff, deep-flatten, journaling</div><div class="line">	flags: </div><div class="line">	journal: 575d12200854</div><div class="line">	mirroring state: enabled</div><div class="line">	mirroring global id: 9ae6a662-6d34-474b-bf71-624cd918cd1b</div><div class="line">	mirroring primary: false</div><div class="line">	</div><div class="line">[root@remote1 ~]# rbd info mirror/test1 --cluster=local</div><div class="line">rbd image 'testrbd':</div><div class="line">	size 128 MB in 32 objects</div><div class="line">	order 22 (4096 kB objects)</div><div class="line">	block_name_prefix: rbd_data.94522ae8944a</div><div class="line">	format: 2</div><div class="line">	features: layering, exclusive-lock, object-map, fast-diff, deep-flatten, journaling</div><div class="line">	flags: </div><div class="line">	journal: 94522ae8944a</div><div class="line">	mirroring state: enabled</div><div class="line">	mirroring global id: 9ae6a662-6d34-474b-bf71-624cd918cd1b</div><div class="line">	mirroring primary: true</div></pre></td></tr></table></figure>
+<p>开启<code>mirror</code>功能的rbd信息会多几个属性，<code>mirroring state</code>为<code>enabled</code>说明开启了mirror功能，<code>mirroring primary</code>为<code>true</code>说明是主集群，<code>false</code>为从集群。</p>
+<h3 id="9、查看从集群是否同步"><a href="#9、查看从集群是否同步" class="headerlink" title="9、查看从集群是否同步"></a>9、查看从集群是否同步</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">rbd ls --pool rbdmirror --cluster=remote</div><div class="line">testrbd</div></pre></td></tr></table></figure>
+<p>主集群的testrbd已经成功同步到从集群<code>remote</code>。</p>
+<h2 id="启动rbd-mirror时报错"><a href="#启动rbd-mirror时报错" class="headerlink" title="启动rbd-mirror时报错"></a>启动rbd-mirror时报错</h2><h3 id="1、failed-to-bind-the-UNIX-domain-socket"><a href="#1、failed-to-bind-the-UNIX-domain-socket" class="headerlink" title="1、failed to bind the UNIX domain socket"></a>1、failed to bind the UNIX domain socket</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">failed to bind the UNIX domain socket to &apos;/var/run/ceph/local-client.admin.asok&apos;: (17) File exists</div></pre></td></tr></table></figure>
+<p>不明，但可以正常使用</p>
+<h3 id="2、error-requesting-lock"><a href="#2、error-requesting-lock" class="headerlink" title="2、error requesting lock"></a>2、error requesting lock</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2017-06-27 09:43:59.135464 7fedb7eee700 -1 librbd::ImageWatcher: 0x7fedd800ca50 error requesting lock: (30) Read-only file system</div></pre></td></tr></table></figure>
+<p>原因：已经存在一个rbd-mirror进程了。</p>
+<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><h3 id="删除pool"><a href="#删除pool" class="headerlink" title="删除pool"></a>删除pool</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ceph osd pool delete &#123;pool-name&#125; [&#123;pool-name&#125; --yes-i-really-really-mean-it]</div></pre></td></tr></table></figure>
+<!-- more -->
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Ceph/">Ceph</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/RBD-Mirror/">RBD-Mirror</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2017/07/21/RBD-Mirror功能的原理与实践/#comments" class="ds-thread-count comments-count-link" data-thread-key="2017/07/21/RBD-Mirror功能的原理与实践/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/04/07/Iterable和Iterator不仅仅是形容词与名次的区别/" title="Iterable和Iterator不仅仅是形容词与名次的区别" itemprop="url">Iterable和Iterator不仅仅是形容词与名次的区别</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-04-07T06:53:37.000Z" itemprop="datePublished"> 发表于 2017-04-07</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p><code>Iterable</code>和<code>Iterator</code>乍一看一个是形容词，一个是名词形式，初学时很容易把它们看成一样的东西，其实不然。<code>Iterator</code>一定是<code>Iterable</code>的，但<code>Iterable</code>的不一定是<code>Iterator</code>哦。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2017/04/07/Iterable和Iterator不仅仅是形容词与名次的区别/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Python学习之路/">Python学习之路</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Python/">Python</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2017/04/07/Iterable和Iterator不仅仅是形容词与名次的区别/#comments" class="ds-thread-count comments-count-link" data-thread-key="2017/04/07/Iterable和Iterator不仅仅是形容词与名次的区别/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/04/05/Django中前后台交换数据的几种方式/" title="Django中前后台交换数据的几种方式" itemprop="url">Django中前后台交换数据的几种方式</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-04-05T07:14:52.000Z" itemprop="datePublished"> 发表于 2017-04-05</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>Django中前台HTML页面如何接收来自后台的数据并显示？</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2017/04/05/Django中前后台交换数据的几种方式/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/被解放的Django/">被解放的Django</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Django/">Django</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2017/04/05/Django中前后台交换数据的几种方式/#comments" class="ds-thread-count comments-count-link" data-thread-key="2017/04/05/Django中前后台交换数据的几种方式/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/03/28/灵活的回调函数/" title="灵活的回调函数" itemprop="url">灵活的回调函数</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-03-28T02:31:15.000Z" itemprop="datePublished"> 发表于 2017-03-28</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>通俗地讲，一般写程序，是调用系统的API，如果关系反过来，自己写一个函数，让系统调用你写的函数，就是回调，被系统调用的函数就是回调函数。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2017/03/28/灵活的回调函数/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/callback/">callback</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2017/03/28/灵活的回调函数/#comments" class="ds-thread-count comments-count-link" data-thread-key="2017/03/28/灵活的回调函数/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/03/27/了解持续集成、持续交付与持续部署/" title="了解持续集成、持续交付与持续部署" itemprop="url">了解持续集成、持续交付与持续部署</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-03-27T09:09:28.000Z" itemprop="datePublished"> 发表于 2017-03-27</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>不管你是运维还是开发，都经常会听到持续集成，持续交付，持续部署几个概念。这三者究竟是什么，有何联系和区别呢？</p>
+<p><img src="http://i4.buimg.com/588729/9d1a3ffc2b178f7c.png" alt="workflow"></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2017/03/27/了解持续集成、持续交付与持续部署/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2017/03/27/了解持续集成、持续交付与持续部署/#comments" class="ds-thread-count comments-count-link" data-thread-key="2017/03/27/了解持续集成、持续交付与持续部署/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/03/26/Redis的两种持久化方式及原理/" title="Redis的两种持久化方式及原理" itemprop="url">Redis的两种持久化方式及原理</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-03-26T11:49:15.000Z" itemprop="datePublished"> 发表于 2017-03-26</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>Redis的所有数据都是保存在内存中，然后<strong>不定期的通过异步方式保存到磁盘上</strong>(这称为“半持久化模式”)；也可以把每一次数据变化都写入到一个append only file(aof)里面(这称为“全持久化模式”)。数据持久化通俗讲就是把数据保存到磁盘上，保证不会因为断电等因素丢失数据。<br>redis 需要经常将内存中的数据同步到磁盘来保证持久化。redis支持两种持久化方式，一种是 Snapshotting(快照)也是默认方式，另一种是Append-only file(aof)的方式。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2017/03/26/Redis的两种持久化方式及原理/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Redis/">Redis</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2017/03/26/Redis的两种持久化方式及原理/#comments" class="ds-thread-count comments-count-link" data-thread-key="2017/03/26/Redis的两种持久化方式及原理/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/03/26/Redis需要了解的几个知识点/" title="Redis需要了解的几个知识点" itemprop="url">Redis需要了解的几个知识点</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-03-26T11:45:03.000Z" itemprop="datePublished"> 发表于 2017-03-26</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>收集网上的一些关于Redis的知识点，包括Redis的优势、和Memcached的区别、常见性能问题等知识。</p>
+<p>内容来自网络，具体出处不可考。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2017/03/26/Redis需要了解的几个知识点/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Redis/">Redis</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2017/03/26/Redis需要了解的几个知识点/#comments" class="ds-thread-count comments-count-link" data-thread-key="2017/03/26/Redis需要了解的几个知识点/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/03/23/浅析Python的垃圾回收机制/" title="浅析Python的垃圾回收机制" itemprop="url">浅析Python的垃圾回收机制</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-03-23T02:08:02.000Z" itemprop="datePublished"> 发表于 2017-03-23</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>现在的高级语言如java，c#等，都采用了垃圾收集机制，而不再是C/C++里用户自己管理维护内存的方式。自己管理内存极其自由，可以任意申请内存，但如同一把双刃剑，为大量内存泄露，悬空指针等bug埋下隐患。</p>
+<p>对于一个字符串、列表、类甚至数值都是对象，且定位简单易用的语言，自然不会让用户去处理如何分配回收内存的问题。python里也同java一样采用了垃圾收集机制，不过不一样的是：</p>
+<p><strong>python采用的是引用计数机制为主，标记-清除和分代收集两种机制为辅的策略。</strong></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2017/03/23/浅析Python的垃圾回收机制/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Python学习之路/">Python学习之路</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Python/">Python</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2017/03/23/浅析Python的垃圾回收机制/#comments" class="ds-thread-count comments-count-link" data-thread-key="2017/03/23/浅析Python的垃圾回收机制/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+
+  <nav id="page-nav" class="clearfix">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
+  </nav>
+
+</div>
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Hexo/" title="Hexo">Hexo<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Redis/" title="Redis">Redis<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Django/" title="Django">Django<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/REST/" title="REST">REST<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Ansible/" title="Ansible">Ansible<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/RBD-Mirror/" title="RBD-Mirror">RBD-Mirror<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/补码/" title="补码">补码<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/通信机制/" title="通信机制">通信机制<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Virtualenv/" title="Virtualenv">Virtualenv<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/callback/" title="callback">callback<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/互联网协议/" title="互联网协议">互联网协议<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Ceph/" title="Ceph">Ceph<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python学习之路/" title="Python学习之路">Python学习之路<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python部落刷题宝/" title="Python部落刷题宝">Python部落刷题宝<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/博客搭建/" title="博客搭建">博客搭建<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/被解放的Django/" title="被解放的Django">被解放的Django<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/计算机基础/" title="计算机基础">计算机基础<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+	<iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=0&isWeibo=0&isFans=0&uid=2826271411&verifier=e270a789&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Gocjy <br/>
+			人类的悲欢并不相通，我只觉得他们吵闹。</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2826271411" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="曹嘉宇">曹嘉宇</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+ </html>
