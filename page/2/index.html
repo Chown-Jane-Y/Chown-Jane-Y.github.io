@@ -82,6 +82,72 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2017/03/23/浅析Python的垃圾回收机制/" title="浅析Python的垃圾回收机制" itemprop="url">浅析Python的垃圾回收机制</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-03-23T02:08:02.000Z" itemprop="datePublished"> 发表于 2017-03-23</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>现在的高级语言如java，c#等，都采用了垃圾收集机制，而不再是C/C++里用户自己管理维护内存的方式。自己管理内存极其自由，可以任意申请内存，但如同一把双刃剑，为大量内存泄露，悬空指针等bug埋下隐患。</p>
+<p>对于一个字符串、列表、类甚至数值都是对象，且定位简单易用的语言，自然不会让用户去处理如何分配回收内存的问题。python里也同java一样采用了垃圾收集机制，不过不一样的是：</p>
+<p><strong>python采用的是引用计数机制为主，标记-清除和分代收集两种机制为辅的策略。</strong></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2017/03/23/浅析Python的垃圾回收机制/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Python学习之路/">Python学习之路</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Python/">Python</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2017/03/23/浅析Python的垃圾回收机制/#comments" class="ds-thread-count comments-count-link" data-thread-key="2017/03/23/浅析Python的垃圾回收机制/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2017/03/22/Python函数参数传递：不传值也不传引用/" title="Python函数参数传递：不传值也不传引用" itemprop="url">Python函数参数传递：不传值也不传引用</a>
   </h1>
   <p class="article-author">By
@@ -505,70 +571,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2017/03/21/Django的一些优缺点评析/" title="Django的一些优缺点评析" itemprop="url">Django的一些优缺点评析</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
-		
-  <p class="article-time">
-    <time datetime="2017-03-21T01:17:52.000Z" itemprop="datePublished"> 发表于 2017-03-21</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>Django 大包大揽，用它来快速开发一些 Web 应用是不错的。如果你顺着 Django 的设计哲学来，你会觉得 Django 很好用，越用越顺手；相反，你如果不能融入或接受 Django 的设计哲学，你用 Django 一定会很痛苦，趁早放弃的好。所以说在有些人眼里 Django 无异于仙丹， 但对有一些人来说它又是毒药且剧毒。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2017/03/21/Django的一些优缺点评析/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/被解放的Django/">被解放的Django</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Django/">Django</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2017/03/21/Django的一些优缺点评析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2017/03/21/Django的一些优缺点评析/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">Next<span></span></a>
@@ -626,15 +628,19 @@
 			
 		
 			
+				<li><a href="/tags/websocket/" title="websocket">websocket<sup>1</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/Virtualenv/" title="Virtualenv">Virtualenv<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/callback/" title="callback">callback<sup>1</sup></a></li>
+				<li><a href="/tags/互联网协议/" title="互联网协议">互联网协议<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/互联网协议/" title="互联网协议">互联网协议<sup>1</sup></a></li>
+				<li><a href="/tags/callback/" title="callback">callback<sup>1</sup></a></li>
 			
 		
 		</ul>
@@ -656,6 +662,10 @@
 		
 		  
 			<li><a href="/categories/Python部落刷题宝/" title="Python部落刷题宝">Python部落刷题宝<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Web知识/" title="Web知识">Web知识<sup>1</sup></a></li>
 		  
 		
 		  

@@ -1,0 +1,550 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>使用Nginx代理ws为wss协议 | 狗几</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="曹嘉宇">
+    
+
+    
+    <meta name="description" content="由于https站点中只能使用wss协议(WebsocketSecure)，需要通过nginx进行一个协议代理，实现ws到wss的转换。">
+<meta name="keywords" content="websocket">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Nginx代理ws为wss协议">
+<meta property="og:url" content="http://yoursite.com/2017/07/21/使用Nginx代理ws为wss协议/index.html">
+<meta property="og:site_name" content="狗几">
+<meta property="og:description" content="由于https站点中只能使用wss协议(WebsocketSecure)，需要通过nginx进行一个协议代理，实现ws到wss的转换。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-07-21T08:41:48.580Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用Nginx代理ws为wss协议">
+<meta name="twitter:description" content="由于https站点中只能使用wss协议(WebsocketSecure)，需要通过nginx进行一个协议代理，实现ws到wss的转换。">
+
+    
+    <link rel="alternative" href="/atom.xml" title="狗几" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.png">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="狗几" title="狗几"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="狗几">狗几</a></h1>
+				<h2 class="blog-motto">新手程序员，正在学习Python，欢迎交流。</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:yoursite.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/07/21/使用Nginx代理ws为wss协议/" title="使用Nginx代理ws为wss协议" itemprop="url">使用Nginx代理ws为wss协议</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-07-21T08:34:44.000Z" itemprop="datePublished"> 发表于 2017-07-21</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、安装nginx"><span class="toc-number">1.</span> <span class="toc-text">一、安装nginx</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、创建自签名"><span class="toc-number">2.</span> <span class="toc-text">二、创建自签名</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#引言"><span class="toc-number">2.1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数字证书"><span class="toc-number">2.2.</span> <span class="toc-text">数字证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建自签名的步骤"><span class="toc-number">2.3.</span> <span class="toc-text">创建自签名的步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#第一步：生成私钥"><span class="toc-number">2.3.1.</span> <span class="toc-text">第一步：生成私钥</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第二步：生成CSR（证书签名请求）"><span class="toc-number">2.3.2.</span> <span class="toc-text">第二步：生成CSR（证书签名请求）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第三步：删除私钥中的密码"><span class="toc-number">2.3.3.</span> <span class="toc-text">第三步：删除私钥中的密码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第四步：生成自签名证书"><span class="toc-number">2.3.4.</span> <span class="toc-text">第四步：生成自签名证书</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第五步：安装私钥和证书"><span class="toc-number">2.3.5.</span> <span class="toc-text">第五步：安装私钥和证书</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置Nginx"><span class="toc-number">3.</span> <span class="toc-text">配置Nginx</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#启动Nginx"><span class="toc-number">4.</span> <span class="toc-text">启动Nginx</span></a></li></ol>
+		
+		</div>
+		
+		<p>由于https站点中只能使用wss协议(WebsocketSecure)，需要通过nginx进行一个协议代理，实现ws到wss的转换。</p>
+<a id="more"></a>
+<h2 id="一、安装nginx"><a href="#一、安装nginx" class="headerlink" title="一、安装nginx"></a>一、安装nginx</h2><p>有两种方法。<br>源码安装和yum安装，都可以。<br>推荐yum安装，更方便。<br>源码安装见之前的笔记。</p>
+<h2 id="二、创建自签名"><a href="#二、创建自签名" class="headerlink" title="二、创建自签名"></a>二、创建自签名</h2><h3 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h3><p>使用HTTP（超文本传输）协议访问互联网上的数据是没有经过加密的。也就是说，任何人都可以通过适当的工具拦截或者监听到在网络上传输的数据流。但是有时候，我们需要在网络上传输一些安全性或者私秘性的数据，譬如：包含信用卡及商品信息的电子订单。这个时候，如果仍然使用HTTP协议，势必会面临非常大的风险。</p>
+<p>HTTPS（超文本传输安全）协议无疑可以有效的解决这一问题。所谓HTTPS，<strong>其实就是HTTP和SSL/TLS的组合</strong>，用以提供加密通讯及对网络服务器的身份鉴定。HTTPS的主要思想是在不安全的网络上创建一安全信道，防止黑客的窃听和攻击。</p>
+<p>SSL（安全套接层）可以用来对Web服务器和客户端之间的数据流进行加密。</p>
+<p>SSL利用非对称密码技术进行数据加密。加密过程中使用到两个秘钥：<strong>一个公钥和一个与之对应的私钥</strong>。使用公钥加密的数据，只能用与之对应的私钥解密；而使用私钥加密的数据，也只能用与之对应的公钥解密。因此，如果在网络上传输的消息或数据流是被服务器的私钥加密的，则只能使用与其对应的公钥解密，从而可以保证客户端与与服务器之间的数据安全。</p>
+<h3 id="数字证书"><a href="#数字证书" class="headerlink" title="数字证书"></a>数字证书</h3><p>在HTTPS的传输过程中，有一个非常关键的角色——数字证书，那什么是数字证书？又有什么作用呢？</p>
+<p>所谓数字证书，是一种用于电脑的身份识别机制。由数字证书颁发机构（CA）对使用私钥创建的签名请求文件做的签名（盖章），表示CA结构对证书持有者的认可。</p>
+<p>但这种证书需要钱，用于测试的话只需要创建一个自签名证书即可。</p>
+<h3 id="创建自签名的步骤"><a href="#创建自签名的步骤" class="headerlink" title="创建自签名的步骤"></a>创建自签名的步骤</h3><p><em>注意：以下步骤仅用于配置内部使用或测试需要的SSL证书。</em></p>
+<h4 id="第一步：生成私钥"><a href="#第一步：生成私钥" class="headerlink" title="第一步：生成私钥"></a>第一步：生成私钥</h4><p>使用openssl工具生成一个RSA私钥<br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ openssl genrsa -des3 -out yourname.key <span class="number">2048</span></div></pre></td></tr></table></figure></p>
+<p>说明：生成rsa私钥，des3算法，2048位强度，yourname.key是秘钥文件名。</p>
+<p>注意：生成私钥，需要提供一个至少4位的密码。</p>
+<h4 id="第二步：生成CSR（证书签名请求）"><a href="#第二步：生成CSR（证书签名请求）" class="headerlink" title="第二步：生成CSR（证书签名请求）"></a>第二步：生成CSR（证书签名请求）</h4><p>生成私钥之后，便可以创建csr文件了。</p>
+<p>此时可以有两种选择。理想情况下，可以将证书发送给证书颁发机构（CA），CA验证过请求者的身份之后，会出具签名证书（很贵）。另外，如果只是内部或者测试需求，也可以使用OpenSSL实现自签名，具体操作如下：<br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ openssl req -new -key yourname.key -out yourname.csr</div></pre></td></tr></table></figure></p>
+<p>说明：需要依次输入国家，地区，城市，组织，组织单位，Common Name和Email。其中Common Name，可以写自己的名字或者域名，如果要支持https，Common Name应该与域名保持一致，否则会引起浏览器警告。<br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">Country Name (<span class="number">2</span> letter code) [AU]: CN</div><div class="line">State or Province Name (full name) [Some-State]: Shanghai</div><div class="line">Locality Name (eg, city) []: Shanghai</div><div class="line">Organization Name (eg, company) [Internet Widgits Pty Ltd]: condata</div><div class="line">Organizational Unit Name (eg, section) []: info technology</div><div class="line">Common Name (e.g. server FQDN or YOUR name) []: demo.condata.cn</div><div class="line">Email Address []: caojy@condata.cn</div></pre></td></tr></table></figure></p>
+<h4 id="第三步：删除私钥中的密码"><a href="#第三步：删除私钥中的密码" class="headerlink" title="第三步：删除私钥中的密码"></a>第三步：删除私钥中的密码</h4><p>在第1步创建私钥的过程中，由于必须要指定一个密码。而这个密码会带来一个副作用，那就是在每次Apache启动Web服务器时，都会要求输入密码，这显然非常不方便。要删除私钥中的密码，操作如下：<br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">cp server.key server.key.org</div><div class="line">openssl rsa <span class="nomarkup">-in</span> server.key.org -out server.key</div></pre></td></tr></table></figure></p>
+<h4 id="第四步：生成自签名证书"><a href="#第四步：生成自签名证书" class="headerlink" title="第四步：生成自签名证书"></a>第四步：生成自签名证书</h4><p>如果你不想花钱让CA签名，或者只是测试SSL的具体实现。那么，现在便可以着手生成一个自签名的证书了。</p>
+<p>需要注意的是，在使用自签名的临时证书时，浏览器会提示证书的颁发机构是未知的。<br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ openssl x509 -req -days <span class="number">365</span> <span class="nomarkup">-in</span> server.csr -signkey server.key -out server.crt</div></pre></td></tr></table></figure></p>
+<p>说明：crt上有证书持有人的信息，持有人的公钥，以及签署者的签名等信息。当用户安装了证书之后，便意味着信任了这份证书，同时拥有了其中的公钥。证书上会说明用途，例如服务器认证，客户端认证，或者签署其他证书。当系统收到一份新的证书的时候，证书会说明，是由谁签署的。如果这个签署者确实可以签署其他证书，并且收到证书上的签名和签署者的公钥可以对上的时候，系统就自动信任新的证书。</p>
+<h4 id="第五步：安装私钥和证书"><a href="#第五步：安装私钥和证书" class="headerlink" title="第五步：安装私钥和证书"></a>第五步：安装私钥和证书</h4><p>将私钥和证书文件复制到某个目录下(如<code>/etc/pki</code>)，然后添加到nginx的配置文件中。</p>
+<h2 id="配置Nginx"><a href="#配置Nginx" class="headerlink" title="配置Nginx"></a>配置Nginx</h2><p>编辑<code>/etc/nginx/nginx.conf</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div></pre></td><td class="code"><pre><div class="line"># For more information on configuration, see:</div><div class="line">#   * Official English Documentation: http://nginx.org/en/docs/</div><div class="line">#   * Official Russian Documentation: http://nginx.org/ru/docs/</div><div class="line"></div><div class="line">user nginx;</div><div class="line">worker_processes auto;</div><div class="line">error_log /var/log/nginx/error.log;</div><div class="line">pid /run/nginx.pid;</div><div class="line"></div><div class="line"># Load dynamic modules. See /usr/share/nginx/README.dynamic.</div><div class="line">include /usr/share/nginx/modules/*.conf;</div><div class="line"></div><div class="line">events &#123;</div><div class="line">    worker_connections 1024;</div><div class="line">&#125;</div><div class="line"></div><div class="line">http &#123;</div><div class="line">    log_format  main  &apos;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &apos;</div><div class="line">                      &apos;$status $body_bytes_sent &quot;$http_referer&quot; &apos;</div><div class="line">                      &apos;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&apos;;</div><div class="line"></div><div class="line">    access_log  /var/log/nginx/access.log  main;</div><div class="line"></div><div class="line">    sendfile            on;</div><div class="line">    tcp_nopush          on;</div><div class="line">    tcp_nodelay         on;</div><div class="line">    keepalive_timeout   65;</div><div class="line">    types_hash_max_size 2048;</div><div class="line"></div><div class="line">    include             /etc/nginx/mime.types;</div><div class="line">    default_type        application/octet-stream;</div><div class="line"></div><div class="line">    # Load modular configuration files from the /etc/nginx/conf.d directory.</div><div class="line">    # See http://nginx.org/en/docs/ngx_core_module.html#include</div><div class="line">    # for more information.</div><div class="line">    include /etc/nginx/conf.d/*.conf;</div><div class="line"></div><div class="line">    server &#123;</div><div class="line">        listen       80 default_server;</div><div class="line">        listen       [::]:80 default_server;</div><div class="line">        server_name  _;</div><div class="line">        root         /usr/share/nginx/html;</div><div class="line"></div><div class="line">        # Load configuration files for the default server block.</div><div class="line">        include /etc/nginx/default.d/*.conf;</div><div class="line"></div><div class="line">        location / &#123;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        error_page 404 /404.html;</div><div class="line">            location = /40x.html &#123;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        error_page 500 502 503 504 /50x.html;</div><div class="line">            location = /50x.html &#123;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    upstream cjywss &#123;</div><div class="line">	    server 192.10.10.133:5438;   # 原ws的端口</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    server &#123;</div><div class="line">	    listen 5555;</div><div class="line">	    server_name 192.10.10.133:5555;</div><div class="line">	    ssl on;</div><div class="line">	    ssl_certificate &quot;/etc/pki/cjywss.crt&quot;;      # 刚才生成的crt和key文件写在这里</div><div class="line">        ssl_certificate_key &quot;/etc/pki/cjywss.key&quot;;</div><div class="line">        ssl_session_cache shared:SSL:1m;</div><div class="line">        ssl_session_timeout  10m;</div><div class="line">        ssl_ciphers HIGH:!aNULL:!MD5;</div><div class="line">        ssl_prefer_server_ciphers on;</div><div class="line">        ssl_protocols TLSv1 TLSv1.1 TLSv1.2 SSLv2 SSLv3;</div><div class="line"></div><div class="line">        access_log /var/log/cjy_access_log main;</div><div class="line"></div><div class="line">        location / &#123;</div><div class="line">    	    proxy_pass http://cjywss;</div><div class="line">    	    proxy_set_header Host $host;</div><div class="line">    	    proxy_set_header X-Real-IP $remote_addr;</div><div class="line">    	    proxy_set_header X-Forwarded-F $remote_addr;</div><div class="line">    	    proxy_http_version 1.1;</div><div class="line">    	    # proxy_set_header Upgrade $http_upgrade;</div><div class="line">    	    proxy_set_header Upgrade &quot;websocket&quot;;</div><div class="line">    	    proxy_set_header Connection &quot;Upgrade&quot;;</div><div class="line">	        proxy_set_header Sec-Websocket-Version 13;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="启动Nginx"><a href="#启动Nginx" class="headerlink" title="启动Nginx"></a>启动Nginx</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ nginx -t  	# 查看配置是否正确</div><div class="line">$ nginx		# 启动Nginx</div></pre></td></tr></table></figure>
+<p>连接<code>wss://192.10.10.133:5555</code>，成功，可以进行通信。</p>
+<!-- more -->  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Web知识/">Web知识</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/websocket/">websocket</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	<div class="share-jiathis">
+	  
+<div class="jiathis_style_24x24">
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_googleplus"></a>
+	<a class="jiathis_button_douban"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=2126358
+2126358" charset="utf-8"></script>      
+
+	 </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2017/07/21/RBD-Mirror功能的原理与实践/"  title="RBD-Mirror功能的原理与实践">
+ <strong>下一篇：</strong><br/> 
+ <span>RBD-Mirror功能的原理与实践
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2017/07/21/使用Nginx代理ws为wss协议/" data-title="使用Nginx代理ws为wss协议" data-url="http://yoursite.com/2017/07/21/使用Nginx代理ws为wss协议/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、安装nginx"><span class="toc-number">1.</span> <span class="toc-text">一、安装nginx</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、创建自签名"><span class="toc-number">2.</span> <span class="toc-text">二、创建自签名</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#引言"><span class="toc-number">2.1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数字证书"><span class="toc-number">2.2.</span> <span class="toc-text">数字证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建自签名的步骤"><span class="toc-number">2.3.</span> <span class="toc-text">创建自签名的步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#第一步：生成私钥"><span class="toc-number">2.3.1.</span> <span class="toc-text">第一步：生成私钥</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第二步：生成CSR（证书签名请求）"><span class="toc-number">2.3.2.</span> <span class="toc-text">第二步：生成CSR（证书签名请求）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第三步：删除私钥中的密码"><span class="toc-number">2.3.3.</span> <span class="toc-text">第三步：删除私钥中的密码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第四步：生成自签名证书"><span class="toc-number">2.3.4.</span> <span class="toc-text">第四步：生成自签名证书</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第五步：安装私钥和证书"><span class="toc-number">2.3.5.</span> <span class="toc-text">第五步：安装私钥和证书</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置Nginx"><span class="toc-number">3.</span> <span class="toc-text">配置Nginx</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#启动Nginx"><span class="toc-number">4.</span> <span class="toc-text">启动Nginx</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Hexo/" title="Hexo">Hexo<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Redis/" title="Redis">Redis<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Django/" title="Django">Django<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/REST/" title="REST">REST<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Ansible/" title="Ansible">Ansible<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/RBD-Mirror/" title="RBD-Mirror">RBD-Mirror<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/补码/" title="补码">补码<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/通信机制/" title="通信机制">通信机制<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/websocket/" title="websocket">websocket<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Virtualenv/" title="Virtualenv">Virtualenv<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/互联网协议/" title="互联网协议">互联网协议<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/callback/" title="callback">callback<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Ceph/" title="Ceph">Ceph<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python学习之路/" title="Python学习之路">Python学习之路<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python部落刷题宝/" title="Python部落刷题宝">Python部落刷题宝<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Web知识/" title="Web知识">Web知识<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/博客搭建/" title="博客搭建">博客搭建<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/被解放的Django/" title="被解放的Django">被解放的Django<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/计算机基础/" title="计算机基础">计算机基础<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+	<iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=0&isWeibo=0&isFans=0&uid=2826271411&verifier=e270a789&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Gocjy <br/>
+			人类的悲欢并不相通，我只觉得他们吵闹。</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2826271411" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="曹嘉宇">曹嘉宇</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"chown-jane-y"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
