@@ -82,6 +82,65 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2017/03/26/Redis的两种持久化方式及原理/" title="Redis的两种持久化方式及原理" itemprop="url">Redis的两种持久化方式及原理</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-03-26T11:49:15.000Z" itemprop="datePublished"> 发表于 2017-03-26</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>Redis的所有数据都是保存在内存中，然后<strong>不定期的通过异步方式保存到磁盘上</strong>(这称为“半持久化模式”)；也可以把每一次数据变化都写入到一个append only file(aof)里面(这称为“全持久化模式”)。数据持久化通俗讲就是把数据保存到磁盘上，保证不会因为断电等因素丢失数据。<br>redis 需要经常将内存中的数据同步到磁盘来保证持久化。redis支持两种持久化方式，一种是 Snapshotting(快照)也是默认方式，另一种是Append-only file(aof)的方式。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2017/03/26/Redis的两种持久化方式及原理/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Redis/">Redis</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2017/03/26/Redis的两种持久化方式及原理/#comments" class="ds-thread-count comments-count-link" data-thread-key="2017/03/26/Redis的两种持久化方式及原理/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2017/03/26/Redis需要了解的几个知识点/" title="Redis需要了解的几个知识点" itemprop="url">Redis需要了解的几个知识点</a>
   </h1>
   <p class="article-author">By
@@ -513,68 +572,9 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2017/03/21/浏览器访问服务器时，都发生了什么？/" title="浏览器访问服务器时，都发生了什么？" itemprop="url">浏览器访问服务器时，都发生了什么？</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
-		
-  <p class="article-time">
-    <time datetime="2017-03-21T01:27:15.000Z" itemprop="datePublished"> 发表于 2017-03-21</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>浏览器是我们每个人每天都在使用的工具，甚至是使用最多的工具。我们在浏览器页面上点击，去探索丰富多彩的互联网世界。但是每一次点击之后，到内容呈现到你面前，这之间的过程，你是否了解清楚呢？</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2017/03/21/浏览器访问服务器时，都发生了什么？/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/互联网协议/">互联网协议</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2017/03/21/浏览器访问服务器时，都发生了什么？/#comments" class="ds-thread-count comments-count-link" data-thread-key="2017/03/21/浏览器访问服务器时，都发生了什么？/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
-    <a class="extend prev" rel="prev" href="/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">Next<span></span></a>
+    <a class="extend prev" rel="prev" href="/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/">Next<span></span></a>
   </nav>
 
 </div>
@@ -609,11 +609,11 @@
 			
 		
 			
-				<li><a href="/tags/callback/" title="callback">callback<sup>1</sup></a></li>
+				<li><a href="/tags/RBD-Mirror/" title="RBD-Mirror">RBD-Mirror<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/RBD-Mirror/" title="RBD-Mirror">RBD-Mirror<sup>1</sup></a></li>
+				<li><a href="/tags/补码/" title="补码">补码<sup>1</sup></a></li>
 			
 		
 			
@@ -625,15 +625,11 @@
 			
 		
 			
-				<li><a href="/tags/REST/" title="REST">REST<sup>1</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/Virtualenv/" title="Virtualenv">Virtualenv<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/补码/" title="补码">补码<sup>1</sup></a></li>
+				<li><a href="/tags/websocket/" title="websocket">websocket<sup>1</sup></a></li>
 			
 		
 			
@@ -641,7 +637,11 @@
 			
 		
 			
-				<li><a href="/tags/websocket/" title="websocket">websocket<sup>1</sup></a></li>
+				<li><a href="/tags/callback/" title="callback">callback<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/REST/" title="REST">REST<sup>1</sup></a></li>
 			
 		
 		</ul>
@@ -682,7 +682,7 @@
 		  
 		
 		  
-			<li><a href="/categories/计算机基础/" title="计算机基础">计算机基础<sup>1</sup></a></li>
+			<li><a href="/categories/计算机基础/" title="计算机基础">计算机基础<sup>2</sup></a></li>
 		  
 		
 		</ul>

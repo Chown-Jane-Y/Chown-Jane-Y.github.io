@@ -82,6 +82,71 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2017/08/03/独立磁盘冗余阵列——RAID原理解析/" title="独立磁盘冗余阵列——RAID原理解析" itemprop="url">独立磁盘冗余阵列——RAID原理解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-08-03T07:21:52.000Z" itemprop="datePublished"> 发表于 2017-08-03</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="何为RAID"><a href="#何为RAID" class="headerlink" title="何为RAID"></a>何为RAID</h3><p>Raid 是一系列放在一起，成为一个逻辑卷的磁盘集合。</p>
+<blockquote>
+<p>磁盘阵列是由很多价格较便宜的磁盘，组合成一个容量巨大的磁盘组，利用个别磁盘提供数据所产生加成效果提升整个磁盘系统效能。利用这项技术，将数据切割成许多区段，分别存放在各个硬盘上。</p>
+</blockquote>
+<p><em>来自百度百科</em></p>
+<p>基本思想就是把多个相对便宜的硬盘组合起来，成为一个硬盘阵列组，使性能达到甚至超过一个价格昂贵、 容量巨大的硬盘。<br>RAID通常被用在服务器电脑上，使用完全相同的硬盘组成一个逻辑扇区，因此操作系统只会把它当做一个硬盘。</p>
+<p>其中RAID又分为几个级别（RAID0、RAID1、RAID5等），各个不同的等级均在数据可靠性及读写性能上做了不同的权衡，需要根据实际情况去选择。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2017/08/03/独立磁盘冗余阵列——RAID原理解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/计算机基础/">计算机基础</a>
+</div>
+
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2017/08/03/独立磁盘冗余阵列——RAID原理解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2017/08/03/独立磁盘冗余阵列——RAID原理解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2017/07/25/最简单的Python网络编程Demo/" title="最简单的Python网络编程Demo" itemprop="url">最简单的Python网络编程Demo</a>
   </h1>
   <p class="article-author">By
@@ -522,68 +587,9 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2017/03/26/Redis的两种持久化方式及原理/" title="Redis的两种持久化方式及原理" itemprop="url">Redis的两种持久化方式及原理</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
-		
-  <p class="article-time">
-    <time datetime="2017-03-26T11:49:15.000Z" itemprop="datePublished"> 发表于 2017-03-26</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>Redis的所有数据都是保存在内存中，然后<strong>不定期的通过异步方式保存到磁盘上</strong>(这称为“半持久化模式”)；也可以把每一次数据变化都写入到一个append only file(aof)里面(这称为“全持久化模式”)。数据持久化通俗讲就是把数据保存到磁盘上，保证不会因为断电等因素丢失数据。<br>redis 需要经常将内存中的数据同步到磁盘来保证持久化。redis支持两种持久化方式，一种是 Snapshotting(快照)也是默认方式，另一种是Append-only file(aof)的方式。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2017/03/26/Redis的两种持久化方式及原理/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Redis/">Redis</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2017/03/26/Redis的两种持久化方式及原理/#comments" class="ds-thread-count comments-count-link" data-thread-key="2017/03/26/Redis的两种持久化方式及原理/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
   </nav>
 
 </div>
@@ -618,11 +624,11 @@
 			
 		
 			
-				<li><a href="/tags/callback/" title="callback">callback<sup>1</sup></a></li>
+				<li><a href="/tags/RBD-Mirror/" title="RBD-Mirror">RBD-Mirror<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/RBD-Mirror/" title="RBD-Mirror">RBD-Mirror<sup>1</sup></a></li>
+				<li><a href="/tags/补码/" title="补码">补码<sup>1</sup></a></li>
 			
 		
 			
@@ -634,15 +640,11 @@
 			
 		
 			
-				<li><a href="/tags/REST/" title="REST">REST<sup>1</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/Virtualenv/" title="Virtualenv">Virtualenv<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/补码/" title="补码">补码<sup>1</sup></a></li>
+				<li><a href="/tags/websocket/" title="websocket">websocket<sup>1</sup></a></li>
 			
 		
 			
@@ -650,7 +652,11 @@
 			
 		
 			
-				<li><a href="/tags/websocket/" title="websocket">websocket<sup>1</sup></a></li>
+				<li><a href="/tags/callback/" title="callback">callback<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/REST/" title="REST">REST<sup>1</sup></a></li>
 			
 		
 		</ul>
@@ -691,7 +697,7 @@
 		  
 		
 		  
-			<li><a href="/categories/计算机基础/" title="计算机基础">计算机基础<sup>1</sup></a></li>
+			<li><a href="/categories/计算机基础/" title="计算机基础">计算机基础<sup>2</sup></a></li>
 		  
 		
 		</ul>

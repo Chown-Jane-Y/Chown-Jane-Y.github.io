@@ -1,0 +1,584 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>独立磁盘冗余阵列——RAID原理解析 | 狗几</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="曹嘉宇">
+    
+
+    
+    <meta name="description" content="基本概念何为RAIDRaid 是一系列放在一起，成为一个逻辑卷的磁盘集合。  磁盘阵列是由很多价格较便宜的磁盘，组合成一个容量巨大的磁盘组，利用个别磁盘提供数据所产生加成效果提升整个磁盘系统效能。利用这项技术，将数据切割成许多区段，分别存放在各个硬盘上。  来自百度百科 基本思想就是把多个相对便宜的硬盘组合起来，成为一个硬盘阵列组，使性能达到甚至超过一个价格昂贵、 容量巨大的硬盘。RAID通常被用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="独立磁盘冗余阵列——RAID原理解析">
+<meta property="og:url" content="http://yoursite.com/2017/08/03/独立磁盘冗余阵列——RAID原理解析/index.html">
+<meta property="og:site_name" content="狗几">
+<meta property="og:description" content="基本概念何为RAIDRaid 是一系列放在一起，成为一个逻辑卷的磁盘集合。  磁盘阵列是由很多价格较便宜的磁盘，组合成一个容量巨大的磁盘组，利用个别磁盘提供数据所产生加成效果提升整个磁盘系统效能。利用这项技术，将数据切割成许多区段，分别存放在各个硬盘上。  来自百度百科 基本思想就是把多个相对便宜的硬盘组合起来，成为一个硬盘阵列组，使性能达到甚至超过一个价格昂贵、 容量巨大的硬盘。RAID通常被用">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://i2.tiimg.com/588729/d60b091d7f59ba1f.png">
+<meta property="og:image" content="http://i2.tiimg.com/588729/3f91f1333eaf9dad.png">
+<meta property="og:image" content="http://i2.tiimg.com/588729/15757713589c2325.png">
+<meta property="og:image" content="http://i2.tiimg.com/588729/0866e01175f5928f.png">
+<meta property="og:image" content="http://i2.tiimg.com/588729/609abbc80ff87c8f.png">
+<meta property="og:image" content="http://i2.tiimg.com/588729/9d4178efb835f5ee.png">
+<meta property="og:updated_time" content="2017-08-03T07:29:52.823Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="独立磁盘冗余阵列——RAID原理解析">
+<meta name="twitter:description" content="基本概念何为RAIDRaid 是一系列放在一起，成为一个逻辑卷的磁盘集合。  磁盘阵列是由很多价格较便宜的磁盘，组合成一个容量巨大的磁盘组，利用个别磁盘提供数据所产生加成效果提升整个磁盘系统效能。利用这项技术，将数据切割成许多区段，分别存放在各个硬盘上。  来自百度百科 基本思想就是把多个相对便宜的硬盘组合起来，成为一个硬盘阵列组，使性能达到甚至超过一个价格昂贵、 容量巨大的硬盘。RAID通常被用">
+<meta name="twitter:image" content="http://i2.tiimg.com/588729/d60b091d7f59ba1f.png">
+
+    
+    <link rel="alternative" href="/atom.xml" title="狗几" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.png">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="狗几" title="狗几"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="狗几">狗几</a></h1>
+				<h2 class="blog-motto">新手程序员，正在学习Python，欢迎交流。</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:yoursite.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/08/03/独立磁盘冗余阵列——RAID原理解析/" title="独立磁盘冗余阵列——RAID原理解析" itemprop="url">独立磁盘冗余阵列——RAID原理解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-08-03T07:21:52.000Z" itemprop="datePublished"> 发表于 2017-08-03</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#基本概念"><span class="toc-number">1.</span> <span class="toc-text">基本概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#何为RAID"><span class="toc-number">1.1.</span> <span class="toc-text">何为RAID</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RAID中一些重要概念"><span class="toc-number">1.2.</span> <span class="toc-text">RAID中一些重要概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RAID级别"><span class="toc-number">1.3.</span> <span class="toc-text">RAID级别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#起源"><span class="toc-number">2.</span> <span class="toc-text">起源</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RAID0"><span class="toc-number">3.</span> <span class="toc-text">RAID0</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#工作原理"><span class="toc-number">3.1.</span> <span class="toc-text">工作原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现方式"><span class="toc-number">3.2.</span> <span class="toc-text">实现方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#适用场景"><span class="toc-number">3.3.</span> <span class="toc-text">适用场景</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RAID1"><span class="toc-number">4.</span> <span class="toc-text">RAID1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#特点"><span class="toc-number">4.1.</span> <span class="toc-text">特点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#工作原理-1"><span class="toc-number">4.2.</span> <span class="toc-text">工作原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#适用场景-1"><span class="toc-number">4.3.</span> <span class="toc-text">适用场景</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RAID5"><span class="toc-number">5.</span> <span class="toc-text">RAID5</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#工作原理-2"><span class="toc-number">5.1.</span> <span class="toc-text">工作原理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RAID01"><span class="toc-number">6.</span> <span class="toc-text">RAID01</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RAID10"><span class="toc-number">7.</span> <span class="toc-text">RAID10</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">8.</span> <span class="toc-text">参考</span></a></li></ol>
+		
+		</div>
+		
+		<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="何为RAID"><a href="#何为RAID" class="headerlink" title="何为RAID"></a>何为RAID</h3><p>Raid 是一系列放在一起，成为一个逻辑卷的磁盘集合。</p>
+<blockquote>
+<p>磁盘阵列是由很多价格较便宜的磁盘，组合成一个容量巨大的磁盘组，利用个别磁盘提供数据所产生加成效果提升整个磁盘系统效能。利用这项技术，将数据切割成许多区段，分别存放在各个硬盘上。</p>
+</blockquote>
+<p><em>来自百度百科</em></p>
+<p>基本思想就是把多个相对便宜的硬盘组合起来，成为一个硬盘阵列组，使性能达到甚至超过一个价格昂贵、 容量巨大的硬盘。<br>RAID通常被用在服务器电脑上，使用完全相同的硬盘组成一个逻辑扇区，因此操作系统只会把它当做一个硬盘。</p>
+<p>其中RAID又分为几个级别（RAID0、RAID1、RAID5等），各个不同的等级均在数据可靠性及读写性能上做了不同的权衡，需要根据实际情况去选择。</p>
+<a id="more"></a>
+<p>下图虽然有些恶搞，但是形象的说明了RAID的原理和之间的区别，现在看不懂没关系，看完文章再回头看，应该很容易明白。</p>
+<p><img src="http://i2.tiimg.com/588729/d60b091d7f59ba1f.png" alt="Markdown"></p>
+<h3 id="RAID中一些重要概念"><a href="#RAID中一些重要概念" class="headerlink" title="RAID中一些重要概念"></a>RAID中一些重要概念</h3><p>重要的 RAID 概念</p>
+<p><strong>校验方式</strong>——用在 RAID 重建中从校验所保存的信息中重新生成丢失的内容。 RAID 5，RAID 6 基于校验。<br><strong>条带化</strong>——是将切片数据随机存储到多个磁盘。它不会在单个磁盘中保存完整的数据。如果我们使用2个磁盘，则每个磁盘存储我们的一半数据。<br><strong>镜像</strong>——被用于 RAID 1 和 RAID 10。镜像会自动备份数据。在 RAID 1 中，它会保存相同的内容到其他盘上。<br><strong>热备份</strong>——只是我们的服务器上的一个备用驱动器，它可以自动更换发生故障的驱动器。在我们的阵列中，如果任何一个驱动器损坏，热备份驱动器会自动用于重建 RAID。<br><strong>块</strong>——是 RAID 控制器每次读写数据时的最小单位，最小 4KB。通过定义块大小，我们可以增加 I/O 性能。</p>
+<h3 id="RAID级别"><a href="#RAID级别" class="headerlink" title="RAID级别"></a>RAID级别</h3><p>RAID有不同的级别。在这里，我们仅列出在真实环境下的使用最多的 RAID 级别。</p>
+<ul>
+<li><strong>RAID0</strong><br>条带化</li>
+<li><strong>RAID1</strong><br>镜像</li>
+<li><strong>RAID5</strong><br>单磁盘分布式奇偶校验</li>
+<li><strong>RAID6</strong><br>双磁盘分布式奇偶校验</li>
+<li><strong>RAID10</strong><br>镜像 + 条带。（嵌套RAID）</li>
+</ul>
+<h2 id="起源"><a href="#起源" class="headerlink" title="起源"></a>起源</h2><p><strong>该技术诞生的起因就是为了提高机械磁盘的读写速度（跟上CPU），与控制成本（只需要廉价磁盘）。</strong></p>
+<p>由加利福尼亚大学伯克利分校（University of California-Berkeley）在1988年，发表的文章：“A Case for Redundant Arrays of Inexpensive Disks”。文章中，谈到了RAID这个词汇，而且定义了RAID的5层级。伯克利大学研究目的是反应当时CPU快速的性能。CPU效能每年大约成长30～50%，而硬磁机只能成长约7%。研究小组希望能找出一种新的技术，在短期内，立即提升效能来平衡计算机的运算能力。在当时，柏克莱研究小组的主要研究目的是效能与成本。</p>
+<p>另外，研究小组也设计出容错（fault-tolerance），逻辑数据备份（logical data redundancy），而产生了RAID理论。研究初期，便宜（Inexpensive）的磁盘也是主要的重点，但后来发现，大量便宜磁盘组合并不能适用于现实的生产环境，后来Inexpensive被改为independent，许多独立的磁盘组。</p>
+<h2 id="RAID0"><a href="#RAID0" class="headerlink" title="RAID0"></a>RAID0</h2><p>RAID0称为条带化(Striping)存储，将数据分段存储于各个磁盘中，读写均可以并行处理。</p>
+<p>Raid0是<strong>所有RAID中存储性能最强的阵列形式</strong>。其工作原理就是在多个磁盘上分散存取连续的数据，这样，当需要存取数据是多个磁盘可以并排执行，每个磁盘执行属于它自己的那部分数据请求，显著提高磁盘整体存取性能。</p>
+<p>但是<strong>没有数据冗余，不具备容错能力</strong>，适用于低成本、低可靠性的台式系统，磁盘的损坏会导致数据的不可修复。</p>
+<h3 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h3><p>RAID0工作方式：<br><img src="http://i2.tiimg.com/588729/3f91f1333eaf9dad.png" alt="RAID0"></p>
+<p>如图所示，系统向 三个磁盘组成的逻辑硬盘(RADI 0 磁盘组)发出的I/O数据请求被转化为3项操作，其中的每一项操作都对应于一块物理硬盘。我们从图中可以清楚的看到通过建立RAID 0，原先顺序的数据请求被分散到所有的三块硬盘中同时执行。</p>
+<h3 id="实现方式"><a href="#实现方式" class="headerlink" title="实现方式"></a>实现方式</h3><p>（1）RAID 0最简单方式<br>就是把x块同样的硬盘用硬件的形式<strong>通过智能磁盘控制器或用操作系统中的磁盘驱动程序以软件的方式串联在一起</strong>，形成一个独立的逻辑驱动器，容量是单独硬盘的 x倍,在电脑数据写时被依次写入到各磁盘 中，当一块磁盘的空间用尽时，数据就会被自动写入到下一块磁盘中，它的好处是可以增加磁盘的容量。<br><strong>速度与其中任何一块磁盘的速度相同</strong>，如果其中的任何一块磁盘出现故障，整个系统将会受到破坏，可靠<br>性是单独使用一块硬盘的1/n。</p>
+<p>（2）RAID 0的另一方式（常指的RAID 0就是指的这个）<br>是用n块硬盘选择合理的带区大小创建带区集，最好是<strong>为每一块硬盘都配备一个专门的磁盘控制器</strong>，在电脑数据读写时同时向n块磁盘读写数据，<strong>速度提升n倍</strong>。提高系统的性能。</p>
+<h3 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h3><p>RAID 0具有的特点，使其特别适用于对性能要求较高，而对数据安全不太在乎的领域，如图形工作站等。对于个人用户，RAID 0也是提高硬盘存储性能的绝佳选择。</p>
+<h2 id="RAID1"><a href="#RAID1" class="headerlink" title="RAID1"></a>RAID1</h2><p>又称镜像盘，数据被同等地写入两个或多个磁盘中：把一个磁盘的数据镜像到另一个磁盘上，采用镜像容错来提高可靠性，<strong>具有raid中最高的数据冗余能力</strong>。存数据时会将数据同时写入镜像盘内，读取数据则只从工作盘读出。发生故障时，系统将从镜像盘读取数据，然后再恢复工作盘正确数据。<strong>这种阵列方式可靠性极高，但是其容量会减去一半。</strong></p>
+<h3 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h3><p>RAID1有以下特点：</p>
+<ul>
+<li>RAID 1的每一个磁盘都具有一个对应的镜像盘，任何时候数据都同步镜像，系统可以从一组镜像盘中的任何一个磁盘读取数据。</li>
+<li>磁盘所能使用的空间只有磁盘容量总和的一半，系统成本高。</li>
+<li>只要系统中任何一对镜像盘中至少有一块磁盘可以使用，甚至可以在一半数量的硬盘出现问题时系统都可以正常运行。</li>
+<li>出现硬盘故障的RAID系统不再可靠，应当及时的更换损坏的硬盘，否则剩余的镜像盘也出现问题，那么整个系统就会崩溃。</li>
+<li>更换新盘后原有数据会需要很长时间同步镜像，外界对数据的访问不会受到影响，只是这时整个系统的性能有所下降。</li>
+<li>RAID1 磁盘控制器的负载相当大，用多个磁盘控制器可以提高数据的安全性和可用性。</li>
+</ul>
+<h3 id="工作原理-1"><a href="#工作原理-1" class="headerlink" title="工作原理"></a>工作原理</h3><p><img src="http://i2.tiimg.com/588729/15757713589c2325.png" alt="RAID1"></p>
+<p>如图所 示：当读取数据时，系统先从RAID1的源盘读取数据，如果读取数据成功，则系统不去管备份盘上的数据；如果读取源盘数据失败，则系统自动转而读取备份盘 上的数据，不会造成用户工作任务的中断。当然，我们应当及时地更换损坏的硬盘并利用备份数据重新建立镜像，避免备份盘在发生损坏时，造成不可挽回 的数据损失。</p>
+<h3 id="适用场景-1"><a href="#适用场景-1" class="headerlink" title="适用场景"></a>适用场景</h3><p>由于对存储的数据进行百分之百的备份，在所有RAID级别中，RAID 1提供最高的数据安全保障。同样，由于数据的百分之百备份，备份数据占了总存储空间的一半，因而磁盘空间利用率低，存储成本高。 Mirror虽不能提高存储性能，但由于其具有的高数据安全性，使其尤其适用于存放重要数据，如服务器、数据库存储、商业金融、档案管理等领域。</p>
+<h2 id="RAID5"><a href="#RAID5" class="headerlink" title="RAID5"></a>RAID5</h2><p>可以理解为是RAID 0和RAID 1的折衷方案，但没有完全使用RAID1镜像理念，而是<strong>使用了“奇偶校验信息”来作为数据恢复的方式</strong>。</p>
+<p>RAID 5可以理解为是RAID 0和RAID 1的折衷方案。RAID 5可以为系统提供数据安全保障，但 保障程度要比镜像低而磁盘空间利用率要比镜像高。RAID 5具有和RAID 0相近似的数据读取 速度，只是因为多了一个奇偶校验信息，写入数据的速度相对单独写入一块硬盘的速度略慢。</p>
+<h3 id="工作原理-2"><a href="#工作原理-2" class="headerlink" title="工作原理"></a>工作原理</h3><p><img src="http://i2.tiimg.com/588729/0866e01175f5928f.png" alt="RAID5"></p>
+<p>RAID5把数据和相对应的奇偶校验信息存储到组成RAID5的各个磁盘上，并且<strong>奇偶校验信息和相对应的数据分别存储于不同的磁盘上，其中任意N-1块磁盘上都存储完整的数据</strong>，也就是说有相当于一块磁盘容量的空间用于存储奇偶校验信息。因此当RAID5的一个磁盘发生损坏 后，不会影响数据的完整性，从而保证了数据安全。当损坏的磁盘被替换后，RAID还会自动 利用剩下奇偶校验信息去重建此磁盘上的数据，来保持RAID5的高可靠性。</p>
+<h2 id="RAID01"><a href="#RAID01" class="headerlink" title="RAID01"></a>RAID01</h2><p>就是RAID0和RAID1的结合。先做条带(0)，再做镜像(1)。</p>
+<p><img src="http://i2.tiimg.com/588729/609abbc80ff87c8f.png" alt="RAID01"></p>
+<h2 id="RAID10"><a href="#RAID10" class="headerlink" title="RAID10"></a>RAID10</h2><p>先做镜像(1)，再做条带(0)</p>
+<p><img src="http://i2.tiimg.com/588729/9d4178efb835f5ee.png" alt="RAID10"></p>
+<p>RAID01和RAID10非常相似，二者在读写性能上没有什么差别。但是在安全性上RAID10要好于 RAID01。如图中所示，假设DISK0损坏，在RAID10中，在剩下的3块盘中，只有当DISK1故障， 整个RAID才会失效。但在RAID01中，DISK0损坏后，左边的条带将无法读取，在剩下的3快盘 中，只要DISK2或DISK3两个盘中任何一个损坏，都会导致RAID失效。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>RAID技术介绍和总结<br><a href="http://blog.jobbole.com/83808/" target="_blank" rel="external">http://blog.jobbole.com/83808/</a></p>
+<p>RAID详解[RAID0/RAID1/RAID10/RAID5]<br><a href="http://blog.chinaunix.net/uid-639516-id-2692517.html" target="_blank" rel="external">http://blog.chinaunix.net/uid-639516-id-2692517.html</a></p>
+<!--more-->  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/计算机基础/">计算机基础</a>
+</div>
+
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	<div class="share-jiathis">
+	  
+<div class="jiathis_style_24x24">
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_googleplus"></a>
+	<a class="jiathis_button_douban"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=2126358
+2126358" charset="utf-8"></script>      
+
+	 </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2017/07/25/最简单的Python网络编程Demo/"  title="最简单的Python网络编程Demo">
+ <strong>下一篇：</strong><br/> 
+ <span>最简单的Python网络编程Demo
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2017/08/03/独立磁盘冗余阵列——RAID原理解析/" data-title="独立磁盘冗余阵列——RAID原理解析" data-url="http://yoursite.com/2017/08/03/独立磁盘冗余阵列——RAID原理解析/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#基本概念"><span class="toc-number">1.</span> <span class="toc-text">基本概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#何为RAID"><span class="toc-number">1.1.</span> <span class="toc-text">何为RAID</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RAID中一些重要概念"><span class="toc-number">1.2.</span> <span class="toc-text">RAID中一些重要概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RAID级别"><span class="toc-number">1.3.</span> <span class="toc-text">RAID级别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#起源"><span class="toc-number">2.</span> <span class="toc-text">起源</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RAID0"><span class="toc-number">3.</span> <span class="toc-text">RAID0</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#工作原理"><span class="toc-number">3.1.</span> <span class="toc-text">工作原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现方式"><span class="toc-number">3.2.</span> <span class="toc-text">实现方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#适用场景"><span class="toc-number">3.3.</span> <span class="toc-text">适用场景</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RAID1"><span class="toc-number">4.</span> <span class="toc-text">RAID1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#特点"><span class="toc-number">4.1.</span> <span class="toc-text">特点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#工作原理-1"><span class="toc-number">4.2.</span> <span class="toc-text">工作原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#适用场景-1"><span class="toc-number">4.3.</span> <span class="toc-text">适用场景</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RAID5"><span class="toc-number">5.</span> <span class="toc-text">RAID5</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#工作原理-2"><span class="toc-number">5.1.</span> <span class="toc-text">工作原理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RAID01"><span class="toc-number">6.</span> <span class="toc-text">RAID01</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RAID10"><span class="toc-number">7.</span> <span class="toc-text">RAID10</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">8.</span> <span class="toc-text">参考</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Django/" title="Django">Django<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Hexo/" title="Hexo">Hexo<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Redis/" title="Redis">Redis<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/RBD-Mirror/" title="RBD-Mirror">RBD-Mirror<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/补码/" title="补码">补码<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Ansible/" title="Ansible">Ansible<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/通信机制/" title="通信机制">通信机制<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Virtualenv/" title="Virtualenv">Virtualenv<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/websocket/" title="websocket">websocket<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/互联网协议/" title="互联网协议">互联网协议<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/callback/" title="callback">callback<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/REST/" title="REST">REST<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Ceph/" title="Ceph">Ceph<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python学习之路/" title="Python学习之路">Python学习之路<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python部落刷题宝/" title="Python部落刷题宝">Python部落刷题宝<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Web知识/" title="Web知识">Web知识<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/博客搭建/" title="博客搭建">博客搭建<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/网络编程/" title="网络编程">网络编程<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/被解放的Django/" title="被解放的Django">被解放的Django<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/计算机基础/" title="计算机基础">计算机基础<sup>2</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+	<iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=0&isWeibo=0&isFans=0&uid=2826271411&verifier=e270a789&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Gocjy <br/>
+			人类的悲欢并不相通，我只觉得他们吵闹。</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2826271411" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="曹嘉宇">曹嘉宇</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"chown-jane-y"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
