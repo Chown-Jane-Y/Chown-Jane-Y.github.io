@@ -1,0 +1,576 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Django REST framework遇到的问题(一) | 狗几</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="曹嘉宇">
+    
+
+    
+    <meta name="description" content="第一次用django rest framework做项目，记录中间遇到的问题与解决办法。">
+<meta name="keywords" content="Django Rest Framework">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Django REST framework遇到的问题(一)">
+<meta property="og:url" content="http://yoursite.com/2017/09/13/Django-REST-framework遇到的问题-一/index.html">
+<meta property="og:site_name" content="狗几">
+<meta property="og:description" content="第一次用django rest framework做项目，记录中间遇到的问题与解决办法。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://oh2r1lczr.bkt.clouddn.com/%E7%99%BB%E5%BD%95%E5%A4%B1%E8%B4%A5.png">
+<meta property="og:updated_time" content="2017-09-13T09:35:19.094Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Django REST framework遇到的问题(一)">
+<meta name="twitter:description" content="第一次用django rest framework做项目，记录中间遇到的问题与解决办法。">
+<meta name="twitter:image" content="http://oh2r1lczr.bkt.clouddn.com/%E7%99%BB%E5%BD%95%E5%A4%B1%E8%B4%A5.png">
+
+    
+    <link rel="alternative" href="/atom.xml" title="狗几" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.png">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="狗几" title="狗几"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="狗几">狗几</a></h1>
+				<h2 class="blog-motto">新手程序员，正在学习Python，欢迎交流。</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:yoursite.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/09/13/Django-REST-framework遇到的问题-一/" title="Django REST framework遇到的问题(一)" itemprop="url">Django REST framework遇到的问题(一)</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-09-13T09:12:18.000Z" itemprop="datePublished"> 发表于 2017-09-13</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、rest-framewor认证问题（如何去掉认证）"><span class="toc-number">1.</span> <span class="toc-text">1、rest_framewor认证问题（如何去掉认证）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#问题"><span class="toc-number">1.1.</span> <span class="toc-text">问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#问题原因"><span class="toc-number">1.2.</span> <span class="toc-text">问题原因</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法"><span class="toc-number">1.3.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、跨域请求问题"><span class="toc-number">2.</span> <span class="toc-text">2、跨域请求问题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#问题-1"><span class="toc-number">2.1.</span> <span class="toc-text">问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#问题原因-1"><span class="toc-number">2.2.</span> <span class="toc-text">问题原因</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-1"><span class="toc-number">2.3.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、admin界面无法进入"><span class="toc-number">3.</span> <span class="toc-text">3、admin界面无法进入</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#错误信息"><span class="toc-number">3.1.</span> <span class="toc-text">错误信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#错误原因"><span class="toc-number">3.2.</span> <span class="toc-text">错误原因</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-2"><span class="toc-number">3.3.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4、动态条件如何进行查询"><span class="toc-number">4.</span> <span class="toc-text">4、动态条件如何进行查询</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#问题信息"><span class="toc-number">4.1.</span> <span class="toc-text">问题信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-3"><span class="toc-number">4.2.</span> <span class="toc-text">解决办法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#如果有逗号查询的解决办法"><span class="toc-number">4.3.</span> <span class="toc-text">如果有逗号查询的解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5、继承AbstractUser后创建User表失败"><span class="toc-number">5.</span> <span class="toc-text">5、继承AbstractUser后创建User表失败</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#错误信息-1"><span class="toc-number">5.1.</span> <span class="toc-text">错误信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-4"><span class="toc-number">5.2.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6、migrate失败：InconsistentMigrationHistory"><span class="toc-number">6.</span> <span class="toc-text">6、migrate失败：InconsistentMigrationHistory</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#错误信息-2"><span class="toc-number">6.1.</span> <span class="toc-text">错误信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-5"><span class="toc-number">6.2.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7、直接在admin中创建用户无法登陆的问题-未解决"><span class="toc-number">7.</span> <span class="toc-text">7、直接在admin中创建用户无法登陆的问题(未解决)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#错误信息-3"><span class="toc-number">7.1.</span> <span class="toc-text">错误信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#错误原因-1"><span class="toc-number">7.2.</span> <span class="toc-text">错误原因</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8、修改kwargs中的默认键值’pk’"><span class="toc-number">8.</span> <span class="toc-text">8、修改kwargs中的默认键值’pk’</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-6"><span class="toc-number">8.1.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9、实现-hubs-id-lamps-接口-无外键"><span class="toc-number">9.</span> <span class="toc-text">9、实现/hubs/{id}/lamps/接口(无外键)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#实现方法"><span class="toc-number">9.1.</span> <span class="toc-text">实现方法</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>第一次用django rest framework做项目，记录中间遇到的问题与解决办法。</p>
+<a id="more"></a>
+<h3 id="1、rest-framewor认证问题（如何去掉认证）"><a href="#1、rest-framewor认证问题（如何去掉认证）" class="headerlink" title="1、rest_framewor认证问题（如何去掉认证）"></a>1、rest_framewor认证问题（如何去掉认证）</h3><h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><p>需要登录（获取cookie）之后才能访问rest api。</p>
+<h4 id="问题原因"><a href="#问题原因" class="headerlink" title="问题原因"></a>问题原因</h4><p>配置中设置了需要权限认证</p>
+<h4 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h4><p>在settings.py中注释掉即可<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># REST_FRAMEWORK = &#123;</span></div><div class="line"><span class="comment">#     # 'DEFAULT_PERMISSION_CLASSES': [</span></div><div class="line"><span class="comment">#     #     'rest_framework.permissions.IsAdminUser',</span></div><div class="line"><span class="comment">#     # ],</span></div><div class="line"><span class="comment"># &#125;</span></div></pre></td></tr></table></figure></p>
+<h3 id="2、跨域请求问题"><a href="#2、跨域请求问题" class="headerlink" title="2、跨域请求问题"></a>2、跨域请求问题</h3><h4 id="问题-1"><a href="#问题-1" class="headerlink" title="问题"></a>问题</h4><p>Ajax跨域请求错误：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">XMLHttpRequest cannot load http://192.168.8.51:8888/hubs/?format=json. No 'Access-Control-Allow-Origin' header is present on the requested resource. Origin 'http://localhost:63342' is therefore not allowed access</div></pre></td></tr></table></figure></p>
+<h4 id="问题原因-1"><a href="#问题原因-1" class="headerlink" title="问题原因"></a>问题原因</h4><p>返回的数据必须要是CORS的数据，也就是返回头部要有Access-Control-Allow-Origin这个信息。否则只能同源调用。</p>
+<p>整个CORS通信过程，都是浏览器自动完成，不需要用户参与。对于开发者来说，CORS通信与同源的AJAX通信没有差别，代码完全一样。浏览器一旦发现AJAX请求跨源，就会自动添加一些附加的头信息，有时还会多出一次附加的请求，但用户不会有感觉。</p>
+<p>因此，实现CORS通信的关键是服务器。只要服务器实现了CORS接口，就可以跨源通信。</p>
+<h4 id="解决办法-1"><a href="#解决办法-1" class="headerlink" title="解决办法"></a>解决办法</h4><p>安装django-cors-middleware，并在settings.py中作一些配置即可。</p>
+<p><a href="http://www.jianshu.com/p/1fd744512d83" target="_blank" rel="external">http://www.jianshu.com/p/1fd744512d83</a><br>用CORS 解决vue.js django跨域调用</p>
+<h3 id="3、admin界面无法进入"><a href="#3、admin界面无法进入" class="headerlink" title="3、admin界面无法进入"></a>3、admin界面无法进入</h3><h4 id="错误信息"><a href="#错误信息" class="headerlink" title="错误信息"></a>错误信息</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Site matching query does not exist.</div></pre></td></tr></table></figure>
+<h4 id="错误原因"><a href="#错误原因" class="headerlink" title="错误原因"></a>错误原因</h4><p>不明</p>
+<h4 id="解决办法-2"><a href="#解决办法-2" class="headerlink" title="解决办法"></a>解决办法</h4><p>把settings.py中 INSTALLED_APPS中sites去掉<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">INSTALLED_APPS = [</div><div class="line">    <span class="string">'django.contrib.admin'</span>,</div><div class="line">    <span class="string">'django.contrib.auth'</span>,</div><div class="line">    <span class="comment"># 'django.contrib.sites',</span></div><div class="line">    <span class="string">'django.contrib.contenttypes'</span>,</div><div class="line">    <span class="string">'django.contrib.sessions'</span>,</div><div class="line">    <span class="string">'django.contrib.messages'</span>,</div><div class="line">    <span class="string">'django.contrib.staticfiles'</span>,</div><div class="line">]</div></pre></td></tr></table></figure></p>
+<h3 id="4、动态条件如何进行查询"><a href="#4、动态条件如何进行查询" class="headerlink" title="4、动态条件如何进行查询"></a>4、动态条件如何进行查询</h3><h4 id="问题信息"><a href="#问题信息" class="headerlink" title="问题信息"></a>问题信息</h4><p>比方说有3个条件，name/age/birthday，现在我需要通过其中任意一个或多个条件进行查询，如何最简单的实现？</p>
+<h4 id="解决办法-3"><a href="#解决办法-3" class="headerlink" title="解决办法"></a>解决办法</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">q = Q()</div><div class="line"><span class="keyword">for</span> kw <span class="keyword">in</span> query_params:</div><div class="line">	q.add(Q(**&#123;kw + <span class="string">'__icontains'</span>: query_params[kw]&#125;), Q.AND)   <span class="comment"># icontains: case-insensitive</span></div><div class="line"></div><div class="line">print(query_params)</div><div class="line">print(q)</div><div class="line"></div><div class="line">queryset = queryset.filter(q)</div></pre></td></tr></table></figure>
+<p>这里icontains是大小写不敏感，如果需要大小写敏感，可以用contains代替。<br>query_params和q打印出来分别是：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># query_params</span></div><div class="line">&lt;QueryDict: &#123;<span class="string">'address'</span>: [<span class="string">'上海'</span>], <span class="string">'sn'</span>: [<span class="string">'123456'</span>]&#125;&gt;</div><div class="line"><span class="comment"># q</span></div><div class="line">(AND: (<span class="string">'address__icontains'</span>, <span class="string">'浦东'</span>), (<span class="string">'sn__icontains'</span>, <span class="string">'FB'</span>))</div></pre></td></tr></table></figure></p>
+<h4 id="如果有逗号查询的解决办法"><a href="#如果有逗号查询的解决办法" class="headerlink" title="如果有逗号查询的解决办法"></a>如果有逗号查询的解决办法</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">Q_sn = Q()</div><div class="line">Q_others = Q()</div><div class="line"><span class="keyword">for</span> kw <span class="keyword">in</span> query_params:</div><div class="line">    <span class="keyword">if</span> kw == <span class="string">'sn'</span> <span class="keyword">and</span> <span class="string">','</span> <span class="keyword">in</span> query_params[kw]:</div><div class="line">        <span class="comment"># sn逗号查询，如['20160805,20170911']，进行or联结</span></div><div class="line">        <span class="keyword">for</span> sn <span class="keyword">in</span> query_params[kw].split(<span class="string">','</span>):</div><div class="line">            Q_sn.add(Q(**&#123;kw + <span class="string">'__icontains'</span>: sn&#125;), Q.OR)     <span class="comment"># icontains: case-insensitive</span></div><div class="line">            </div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        Q_others.add(Q(**&#123;kw + <span class="string">'__icontains'</span>: query_params[kw]&#125;), Q.AND)</div><div class="line"></div><div class="line">queryset = queryset.filter(Q_sn, Q_others)</div></pre></td></tr></table></figure>
+<h3 id="5、继承AbstractUser后创建User表失败"><a href="#5、继承AbstractUser后创建User表失败" class="headerlink" title="5、继承AbstractUser后创建User表失败"></a>5、继承AbstractUser后创建User表失败</h3><h4 id="错误信息-1"><a href="#错误信息-1" class="headerlink" title="错误信息"></a>错误信息</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">ERRORS:</div><div class="line">auth.User.groups: (fields.E304) Reverse accessor for &apos;User.groups&apos; clashes with reverse accessor for &apos;User.groups&apos;.</div><div class="line">        HINT: Add or change a related_name argument to the definition for &apos;User.groups&apos; or &apos;User.groups&apos;.</div><div class="line">auth.User.user_permissions: (fields.E304) Reverse accessor for &apos;User.user_permissions&apos; clashes with reverse accessor for &apos;User.user_permissions&apos;.</div><div class="line">        HINT: Add or change a related_name argument to the definition for &apos;User.user_permissions&apos; or &apos;User.user_permissions&apos;.</div><div class="line">manage_user.User.groups: (fields.E304) Reverse accessor for &apos;User.groups&apos; clashes with reverse accessor for &apos;User.groups&apos;.</div><div class="line">        HINT: Add or change a related_name argument to the definition for &apos;User.groups&apos; or &apos;User.groups&apos;.</div><div class="line">manage_user.User.user_permissions: (fields.E304) Reverse accessor for &apos;User.user_permissions&apos; clashes with reverse accessor for &apos;User.user_permissions&apos;.</div><div class="line">        HINT: Add or change a related_name argument to the definition for &apos;User.user_permissions&apos; or &apos;User.user_permissions&apos;.</div></pre></td></tr></table></figure>
+<h4 id="解决办法-4"><a href="#解决办法-4" class="headerlink" title="解决办法"></a>解决办法</h4><p>在settings.py中重载AUTH_USER_MODEL<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">AUTH_USER_MODEL = &apos;manage_user.User&apos;</div><div class="line">...</div></pre></td></tr></table></figure></p>
+<p>manage_user是app的名字，User是models.py中定义的表的名称。</p>
+<h3 id="6、migrate失败：InconsistentMigrationHistory"><a href="#6、migrate失败：InconsistentMigrationHistory" class="headerlink" title="6、migrate失败：InconsistentMigrationHistory"></a>6、migrate失败：InconsistentMigrationHistory</h3><h4 id="错误信息-2"><a href="#错误信息-2" class="headerlink" title="错误信息"></a>错误信息</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">django.db.migrations.exceptions.InconsistentMigrationHistory: Migration admin.0001_initial is applied before its dependency manage_user.0001_initial on database &apos;default&apos;.</div></pre></td></tr></table></figure>
+<h4 id="解决办法-5"><a href="#解决办法-5" class="headerlink" title="解决办法"></a>解决办法</h4><p>删除所有数据表，重新migrate。</p>
+<h3 id="7、直接在admin中创建用户无法登陆的问题-未解决"><a href="#7、直接在admin中创建用户无法登陆的问题-未解决" class="headerlink" title="7、直接在admin中创建用户无法登陆的问题(未解决)"></a>7、直接在admin中创建用户无法登陆的问题(未解决)</h3><h4 id="错误信息-3"><a href="#错误信息-3" class="headerlink" title="错误信息"></a>错误信息</h4><p>在admin管理页面中直接add一个user后，进行登录，失败：</p>
+<p><img src="http://oh2r1lczr.bkt.clouddn.com/%E7%99%BB%E5%BD%95%E5%A4%B1%E8%B4%A5.png" alt="login error"></p>
+<h4 id="错误原因-1"><a href="#错误原因-1" class="headerlink" title="错误原因"></a>错误原因</h4><p>需要重写create方法，在创建时给密码加密。用set_password(raw_password)。</p>
+<h3 id="8、修改kwargs中的默认键值’pk’"><a href="#8、修改kwargs中的默认键值’pk’" class="headerlink" title="8、修改kwargs中的默认键值’pk’"></a>8、修改kwargs中的默认键值’pk’</h3><h4 id="解决办法-6"><a href="#解决办法-6" class="headerlink" title="解决办法"></a>解决办法</h4><p>在自己继承的viewset类中重载lookup_field这个属性即可：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">HubLampViewSet</span><span class="params">(viewsets.ModelViewSet)</span>:</span></div><div class="line"></div><div class="line">    lookup_field = <span class="string">'hub_sn'</span>    <span class="comment"># 重载lookup_field</span></div><div class="line">    queryset = Lamp.objects.all().filter(is_deleted=<span class="keyword">False</span>)</div><div class="line">    serializer_class = LampSerializer</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_queryset</span><span class="params">(self)</span>:</span></div><div class="line">        hub_sn = self.kwargs[<span class="string">'hub_sn'</span>]</div><div class="line">        print(hub_sn)</div><div class="line">        <span class="keyword">return</span> Lamp.objects.filter(hub_sn__icontains=hub_sn)</div></pre></td></tr></table></figure></p>
+<h3 id="9、实现-hubs-id-lamps-接口-无外键"><a href="#9、实现-hubs-id-lamps-接口-无外键" class="headerlink" title="9、实现/hubs/{id}/lamps/接口(无外键)"></a>9、实现/hubs/{id}/lamps/接口(无外键)</h3><p>获取hubs[id]下的所有lamps。这里我使用hub_sn进行查询的，不是id。因为没有外键约束，是通过hub_sn进行关联。</p>
+<h4 id="实现方法"><a href="#实现方法" class="headerlink" title="实现方法"></a>实现方法</h4><p>在lamps/view.py中继承viewset：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">HubLampViewSet</span><span class="params">(LampViewSet)</span>:</span>   <span class="comment"># 这里LampViewSet已经继承了viewset</span></div><div class="line">    queryset = Lamp.objects.all().filter(is_deleted=<span class="keyword">False</span>)</div><div class="line">    serializer_class = LampSerializer</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">list</span><span class="params">(self, request, *args, **kwargs)</span>:</span></div><div class="line">        <span class="string">"""</span></div><div class="line">        Get list of lamps by hub_sn.</div><div class="line">        """</div><div class="line"></div><div class="line">        hub_sn = self.kwargs[<span class="string">'hub_sn'</span>]</div><div class="line">        queryset = Lamp.objects.filter(hub_sn=hub_sn)</div><div class="line">        queryset = self._query(request, queryset=queryset)</div><div class="line"></div><div class="line">        <span class="keyword">if</span> isinstance(queryset, QuerySet):</div><div class="line">            queryset = queryset.all()</div><div class="line"></div><div class="line">        serializer = self.get_serializer(queryset, many=<span class="keyword">True</span>)</div><div class="line"></div><div class="line">        <span class="keyword">return</span> Response(serializer.data)</div></pre></td></tr></table></figure></p>
+<p>在project/urls.py中配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">from manage_lamp import views as lamp_views</div><div class="line"></div><div class="line">hub_lamps_view = lamp_views.HubLampViewSet.as_view(&#123;</div><div class="line">    &apos;get&apos;: &apos;list&apos;,          # 路由到HubLampViewSet类中的list方法</div><div class="line">&#125;)</div><div class="line"></div><div class="line"></div><div class="line">urlpatterns = [</div><div class="line">    ...</div><div class="line">    url(r&apos;^hubs/(?P&lt;hub_sn&gt;[0-9]+)/lamps/&apos;, hub_lamps_view, name=&apos;hub-lamps-list&apos;), </div><div class="line">    ...</div><div class="line">]</div></pre></td></tr></table></figure></p>
+<!--more-->  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Django-Rest-Framework/">Django Rest Framework</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Django-Rest-Framework/">Django Rest Framework</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	<div class="share-jiathis">
+	  
+<div class="jiathis_style_24x24">
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_googleplus"></a>
+	<a class="jiathis_button_douban"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=2126358
+2126358" charset="utf-8"></script>      
+
+	 </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/09/13/Django-REST-framework遇到的问题-二/" title="Django REST framework遇到的问题(二)">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Django REST framework遇到的问题(二)</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/08/03/独立磁盘冗余阵列——RAID原理解析/"  title="独立磁盘冗余阵列——RAID原理解析">
+ <strong>下一篇：</strong><br/> 
+ <span>独立磁盘冗余阵列——RAID原理解析
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2017/09/13/Django-REST-framework遇到的问题-一/" data-title="Django REST framework遇到的问题(一)" data-url="http://yoursite.com/2017/09/13/Django-REST-framework遇到的问题-一/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、rest-framewor认证问题（如何去掉认证）"><span class="toc-number">1.</span> <span class="toc-text">1、rest_framewor认证问题（如何去掉认证）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#问题"><span class="toc-number">1.1.</span> <span class="toc-text">问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#问题原因"><span class="toc-number">1.2.</span> <span class="toc-text">问题原因</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法"><span class="toc-number">1.3.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、跨域请求问题"><span class="toc-number">2.</span> <span class="toc-text">2、跨域请求问题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#问题-1"><span class="toc-number">2.1.</span> <span class="toc-text">问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#问题原因-1"><span class="toc-number">2.2.</span> <span class="toc-text">问题原因</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-1"><span class="toc-number">2.3.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、admin界面无法进入"><span class="toc-number">3.</span> <span class="toc-text">3、admin界面无法进入</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#错误信息"><span class="toc-number">3.1.</span> <span class="toc-text">错误信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#错误原因"><span class="toc-number">3.2.</span> <span class="toc-text">错误原因</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-2"><span class="toc-number">3.3.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4、动态条件如何进行查询"><span class="toc-number">4.</span> <span class="toc-text">4、动态条件如何进行查询</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#问题信息"><span class="toc-number">4.1.</span> <span class="toc-text">问题信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-3"><span class="toc-number">4.2.</span> <span class="toc-text">解决办法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#如果有逗号查询的解决办法"><span class="toc-number">4.3.</span> <span class="toc-text">如果有逗号查询的解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5、继承AbstractUser后创建User表失败"><span class="toc-number">5.</span> <span class="toc-text">5、继承AbstractUser后创建User表失败</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#错误信息-1"><span class="toc-number">5.1.</span> <span class="toc-text">错误信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-4"><span class="toc-number">5.2.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6、migrate失败：InconsistentMigrationHistory"><span class="toc-number">6.</span> <span class="toc-text">6、migrate失败：InconsistentMigrationHistory</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#错误信息-2"><span class="toc-number">6.1.</span> <span class="toc-text">错误信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-5"><span class="toc-number">6.2.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7、直接在admin中创建用户无法登陆的问题-未解决"><span class="toc-number">7.</span> <span class="toc-text">7、直接在admin中创建用户无法登陆的问题(未解决)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#错误信息-3"><span class="toc-number">7.1.</span> <span class="toc-text">错误信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#错误原因-1"><span class="toc-number">7.2.</span> <span class="toc-text">错误原因</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8、修改kwargs中的默认键值’pk’"><span class="toc-number">8.</span> <span class="toc-text">8、修改kwargs中的默认键值’pk’</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-6"><span class="toc-number">8.1.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9、实现-hubs-id-lamps-接口-无外键"><span class="toc-number">9.</span> <span class="toc-text">9、实现/hubs/{id}/lamps/接口(无外键)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#实现方法"><span class="toc-number">9.1.</span> <span class="toc-text">实现方法</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Django-Rest-Framework/" title="Django Rest Framework">Django Rest Framework<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Hexo/" title="Hexo">Hexo<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Redis/" title="Redis">Redis<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Django/" title="Django">Django<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/RBD-Mirror/" title="RBD-Mirror">RBD-Mirror<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/callback/" title="callback">callback<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Ansible/" title="Ansible">Ansible<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Virtualenv/" title="Virtualenv">Virtualenv<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/通信机制/" title="通信机制">通信机制<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/REST/" title="REST">REST<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/websocket/" title="websocket">websocket<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/互联网协议/" title="互联网协议">互联网协议<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/补码/" title="补码">补码<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Ceph/" title="Ceph">Ceph<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Django-Rest-Framework/" title="Django Rest Framework">Django Rest Framework<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python学习之路/" title="Python学习之路">Python学习之路<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python部落刷题宝/" title="Python部落刷题宝">Python部落刷题宝<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Web知识/" title="Web知识">Web知识<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/博客搭建/" title="博客搭建">博客搭建<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/网络编程/" title="网络编程">网络编程<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/被解放的Django/" title="被解放的Django">被解放的Django<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/计算机基础/" title="计算机基础">计算机基础<sup>2</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+	<iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=0&isWeibo=0&isFans=0&uid=2826271411&verifier=e270a789&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Gocjy <br/>
+			人类的悲欢并不相通，我只觉得他们吵闹。</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2826271411" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="曹嘉宇">曹嘉宇</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"chown-jane-y"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

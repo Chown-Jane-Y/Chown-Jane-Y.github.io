@@ -1,0 +1,572 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Django REST framework遇到的问题(二) | 狗几</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="曹嘉宇">
+    
+
+    
+    <meta name="description" content="问题第二波。">
+<meta name="keywords" content="Django Rest Framework">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Django REST framework遇到的问题(二)">
+<meta property="og:url" content="http://yoursite.com/2017/09/13/Django-REST-framework遇到的问题-二/index.html">
+<meta property="og:site_name" content="狗几">
+<meta property="og:description" content="问题第二波。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://oh2r1lczr.bkt.clouddn.com/token%E6%95%B0%E6%8D%AE%E8%A1%A8.png">
+<meta property="og:updated_time" content="2017-09-13T09:35:17.490Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Django REST framework遇到的问题(二)">
+<meta name="twitter:description" content="问题第二波。">
+<meta name="twitter:image" content="http://oh2r1lczr.bkt.clouddn.com/token%E6%95%B0%E6%8D%AE%E8%A1%A8.png">
+
+    
+    <link rel="alternative" href="/atom.xml" title="狗几" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.png">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="狗几" title="狗几"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="狗几">狗几</a></h1>
+				<h2 class="blog-motto">新手程序员，正在学习Python，欢迎交流。</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:yoursite.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/09/13/Django-REST-framework遇到的问题-二/" title="Django REST framework遇到的问题(二)" itemprop="url">Django REST framework遇到的问题(二)</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="曹嘉宇" target="_blank" itemprop="author">曹嘉宇</a>
+		
+  <p class="article-time">
+    <time datetime="2017-09-13T09:16:51.000Z" itemprop="datePublished"> 发表于 2017-09-13</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、各种viewset和mixin有什么区别？"><span class="toc-number">1.</span> <span class="toc-text">1、各种viewset和mixin有什么区别？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#解答"><span class="toc-number">1.1.</span> <span class="toc-text">解答</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、如何自定义django-filter？"><span class="toc-number">2.</span> <span class="toc-text">2、如何自定义django-filter？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法"><span class="toc-number">2.1.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、如何实现token认证"><span class="toc-number">3.</span> <span class="toc-text">3、如何实现token认证</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-1"><span class="toc-number">3.1.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4、默认token是全局的，如何实现局部？"><span class="toc-number">4.</span> <span class="toc-text">4、默认token是全局的，如何实现局部？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-2"><span class="toc-number">4.1.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5、实现JWT用户认证"><span class="toc-number">5.</span> <span class="toc-text">5、实现JWT用户认证</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-3"><span class="toc-number">5.1.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6、如何在serializers-py中定义非models字段？"><span class="toc-number">6.</span> <span class="toc-text">6、如何在serializers.py中定义非models字段？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-4"><span class="toc-number">6.1.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7、如何在serializer中自定义validator-验证字段有效性"><span class="toc-number">7.</span> <span class="toc-text">7、如何在serializer中自定义validator(验证字段有效性)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-5"><span class="toc-number">7.1.</span> <span class="toc-text">解决办法</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>问题第二波。</p>
+<a id="more"></a>
+<h3 id="1、各种viewset和mixin有什么区别？"><a href="#1、各种viewset和mixin有什么区别？" class="headerlink" title="1、各种viewset和mixin有什么区别？"></a>1、各种viewset和mixin有什么区别？</h3><h4 id="解答"><a href="#解答" class="headerlink" title="解答"></a>解答</h4><p>viewset是继承结合了各种mixin后的集大成者。<br>如果只需要其中一两个接口的话，可以自己继承需要的mixin和genericview。</p>
+<h3 id="2、如何自定义django-filter？"><a href="#2、如何自定义django-filter？" class="headerlink" title="2、如何自定义django-filter？"></a>2、如何自定义django-filter？</h3><h4 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h4><p>安装django-filter库：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pip install django-filter</div></pre></td></tr></table></figure></p>
+<p>settings.py中配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">INSTALLED_APPS = [</div><div class="line">	...</div><div class="line">    &apos;django_filters&apos;,</div><div class="line">    ...</div><div class="line">]</div></pre></td></tr></table></figure></p>
+<p>view.py中添加：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">from django_filters.rest_framework import DjangoFilterBackend</div><div class="line">from rest_framework.filters import OrderingFilter</div><div class="line"></div><div class="line">from .models import Hub</div><div class="line">from .serializers import HubSerializer</div><div class="line">from .filters import HubFilter</div><div class="line"></div><div class="line">class HubViewSet(viewsets.ModelViewSet):</div><div class="line"></div><div class="line">    queryset = Hub.objects.all().filter(is_deleted=False)</div><div class="line">    serializer_class = HubSerializer</div><div class="line">    filter_backends = (DjangoFilterBackend, OrderingFilter)</div><div class="line">    filter_class = HubFilter</div><div class="line">    ordering_fields = (&apos;id&apos;, &apos;sn&apos;, &apos;registered_time&apos;, &apos;status&apos;, &apos;rf_band&apos;, &apos;channel&apos;, &apos;address&apos;)</div></pre></td></tr></table></figure></p>
+<p>新建filters.py：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div></pre></td><td class="code"><pre><div class="line"># coding: utf-8</div><div class="line">from django.db.models import Q</div><div class="line">from django_filters import rest_framework as filters</div><div class="line"></div><div class="line">from .models import Hub</div><div class="line"></div><div class="line"></div><div class="line">class HubFilter(filters.FilterSet):</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    Filter of hubs.</div><div class="line">    &quot;&quot;&quot;</div><div class="line"></div><div class="line">    sn = filters.CharFilter(name=&apos;sn&apos;, method=&apos;sn_filter&apos;, lookup_expr=&apos;icontains&apos;)</div><div class="line">    address = filters.CharFilter(name=&apos;address&apos;, lookup_expr=&apos;icontains&apos;)</div><div class="line">    memo = filters.CharFilter(name=&apos;memo&apos;, lookup_expr=&apos;icontains&apos;)</div><div class="line">    start_time = filters.DateFilter(name=&apos;registered_time&apos;, lookup_expr=&apos;gte&apos;)</div><div class="line">    end_time = filters.DateFilter(name=&apos;registered_time&apos;, lookup_expr=&apos;lte&apos;)</div><div class="line"></div><div class="line">    class Meta:</div><div class="line">        model = Hub</div><div class="line">        fields = (</div><div class="line">            &apos;id&apos;,</div><div class="line">            &apos;sn&apos;,           # fuzzy query</div><div class="line">            &apos;status&apos;,</div><div class="line">            &apos;rf_band&apos;,</div><div class="line">            &apos;channel&apos;,</div><div class="line">            &apos;address&apos;,      # fuzzy query</div><div class="line">            &apos;start_time&apos;,</div><div class="line">            &apos;end_time&apos;,     # registered time in range(start_time, end_time)</div><div class="line">            &apos;longitude&apos;,</div><div class="line">            &apos;latitude&apos;,</div><div class="line">            &apos;memo&apos;          # fuzzy query</div><div class="line">        )</div><div class="line"></div><div class="line">    @staticmethod</div><div class="line">    def sn_filter(queryset, name, value):</div><div class="line">        &quot;&quot;&quot;</div><div class="line">        自定义过滤方法，sn可以包含逗号，如&apos;2016,2017&apos;，进行or查询</div><div class="line">        查询sn中包含&apos;2016&apos;或&apos;2017&apos;的所有集控</div><div class="line">        </div><div class="line">        允许&apos;2016,2017&apos; , &apos;2016,&apos; , &apos;2016, 2017&apos; , &apos;2016 ,2017&apos;等形式</div><div class="line">        &quot;&quot;&quot;</div><div class="line"></div><div class="line">        value = value.replace(&apos; &apos;, &apos;&apos;)</div><div class="line"></div><div class="line">        Q_sn = Q()</div><div class="line">        for sn in value.split(&apos;,&apos;):</div><div class="line">            if sn:</div><div class="line">                Q_sn.add(Q(**&#123;&apos;sn__icontains&apos;: sn&#125;), Q.OR)</div><div class="line"></div><div class="line">        queryset = queryset.filter(Q_sn)</div><div class="line">        return queryset</div></pre></td></tr></table></figure></p>
+<h3 id="3、如何实现token认证"><a href="#3、如何实现token认证" class="headerlink" title="3、如何实现token认证"></a>3、如何实现token认证</h3><h4 id="解决办法-1"><a href="#解决办法-1" class="headerlink" title="解决办法"></a>解决办法</h4><p>在urls.py中添加一条：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> rest_framework.authtoken <span class="keyword">import</span> views <span class="keyword">as</span> authtoken_views</div><div class="line"></div><div class="line">urlpatterns = [</div><div class="line">    url(<span class="string">r'^admin/'</span>, admin.site.urls),</div><div class="line">    ...</div><div class="line">    ...</div><div class="line">    url(<span class="string">r'api-auth-token/'</span>, authtoken_views.obtain_auth_token),   <span class="comment"># 添加此条</span></div><div class="line">]</div></pre></td></tr></table></figure></p>
+<p>settings.py中添加INSTALLED_APPS：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">INSTALLED_APPS = [</div><div class="line">	...</div><div class="line">    <span class="string">'rest_framework'</span>,</div><div class="line">    <span class="string">'rest_framework.authtoken'</span>,      <span class="comment"># 添加此app</span></div><div class="line">    ...</div><div class="line">]</div></pre></td></tr></table></figure></p>
+<p>REST_FRAMWORK中添加：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">REST_FRAMEWORK = &#123;</div><div class="line">	...</div><div class="line">	...</div><div class="line">    <span class="string">'DEFAULT_AUTHENTICATION_CLASSES'</span>: (</div><div class="line">        <span class="string">'rest_framework.authentication.BasicAuthentication'</span>,</div><div class="line">        <span class="string">'rest_framework.authentication.SessionAuthentication'</span>,</div><div class="line">        <span class="string">'rest_framework.authentication.TokenAuthentication'</span>,     <span class="comment"># 主要是这个</span></div><div class="line">    ),</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>然后重新生成数据表：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">python manage.py makemigrations</div><div class="line">python manage.py migrate</div></pre></td></tr></table></figure></p>
+<p>这是数据库中会多一张表，用来存放token，与用户ID相关联。<br><img src="http://oh2r1lczr.bkt.clouddn.com/token%E6%95%B0%E6%8D%AE%E8%A1%A8.png" alt="token table"></p>
+<p>POST方法请求该URL：<a href="http://127.0.0.1:8000/api-auth-token/" target="_blank" rel="external">http://127.0.0.1:8000/api-auth-token/</a><br>需要带上body参数，参数是用户名和密码：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">	<span class="string">"username"</span>: caojiayu,</div><div class="line">	<span class="string">"password"</span>: admin123</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment"># 还需要头部信息：</span></div><div class="line">&#123;</div><div class="line">	<span class="string">"Content-Type"</span>: <span class="string">"application/json"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>如果用户名密码正确，服务器会返回一条token：<br>（如果该token不存在，会自动创建一个新的token。如果存在，则返回数据库里原有的token。）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    &quot;token&quot;: &quot;9cf6adbd6372b7162e48f82b322d6526b6877b76&quot;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>拿到这个token后，在其他请求的headers中带上此参数：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">	&quot;Authorization&quot;： &quot;Token 9cf6adbd6372b7162e48f82b322d6526b6877b76&quot;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>如果token正确的话，后端request参数中就可以拿到用户，用request.user就可以拿到caojiayu。</p>
+<p>如果token错误的话，就会返回：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    &quot;detail&quot;: &quot;Invalid token.&quot;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="4、默认token是全局的，如何实现局部？"><a href="#4、默认token是全局的，如何实现局部？" class="headerlink" title="4、默认token是全局的，如何实现局部？"></a>4、默认token是全局的，如何实现局部？</h3><h4 id="解决办法-2"><a href="#解决办法-2" class="headerlink" title="解决办法"></a>解决办法</h4><p>一是让前端去做，需要token的时候再加token，不推荐这种。</p>
+<p>二是让后端做，在类中添加authentication_classes，来进行token限制。</p>
+<p>在settings.py中把全局的去掉：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">REST_FRAMEWORK = &#123;</div><div class="line">    <span class="string">'DEFAULT_AUTHENTICATION_CLASSES'</span>: (</div><div class="line">        <span class="string">'rest_framework.authentication.BasicAuthentication'</span>,</div><div class="line">        <span class="string">'rest_framework.authentication.SessionAuthentication'</span>,</div><div class="line">        <span class="comment"># 'rest_framework.authentication.TokenAuthentication',  # 去掉该行配置</span></div><div class="line">    ),</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>在需要添加token验证的viewset中，加上一个属性：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> rest_framework.authentication <span class="keyword">import</span> TokenAuthentication   <span class="comment"># 添加该行</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">HubViewSet</span><span class="params">(viewsets.ModelViewSet)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line">    集控列表页，可进行过滤与排序。</div><div class="line">    """</div><div class="line"></div><div class="line">    queryset = Hub.objects.all().filter(is_deleted=<span class="keyword">False</span>)</div><div class="line">    serializer_class = HubSerializer</div><div class="line">    authentication_classes = (TokenAuthentication, )       <span class="comment"># 添加该行</span></div></pre></td></tr></table></figure></p>
+<p>这样一来HubViewSet中的方法都需要进行token验证，其他没有配置的则不需要验证。</p>
+<h3 id="5、实现JWT用户认证"><a href="#5、实现JWT用户认证" class="headerlink" title="5、实现JWT用户认证"></a>5、实现JWT用户认证</h3><h4 id="解决办法-3"><a href="#解决办法-3" class="headerlink" title="解决办法"></a>解决办法</h4><p>settings.py中加入一行配置：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">REST_FRAMEWORK = &#123;</div><div class="line">    <span class="string">'DEFAULT_AUTHENTICATION_CLASSES'</span>: (</div><div class="line">        <span class="string">'rest_framework.authentication.BasicAuthentication'</span>,</div><div class="line">        <span class="string">'rest_framework.authentication.SessionAuthentication'</span>,</div><div class="line">        <span class="comment"># 'rest_framework.authentication.TokenAuthentication',</span></div><div class="line">        <span class="string">'rest_framework_jwt.authentication.JSONWebTokenAuthentication'</span>,  <span class="comment"># 加入此行</span></div><div class="line">    ),</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>urls.py中配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">urlpatterns = [</div><div class="line">	...</div><div class="line">    # url(r&apos;api-auth-token/&apos;, authtoken_views.obtain_auth_token),  # drf自带的token认证</div><div class="line">    url(r&apos;login/&apos;, jwt_authtoken_views.obtain_jwt_token),       # 加此行，jwt认证</div><div class="line">]</div></pre></td></tr></table></figure></p>
+<p>然后POST请求<a href="http://192.168.8.51:8888/jwt-auth/，body中输入用户名和密码，得到token：" target="_blank" rel="external">http://192.168.8.51:8888/jwt-auth/，body中输入用户名和密码，得到token：</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  &quot;token&quot;: &quot;eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImNhb2ppYXl1IiwiZXhwIjoxNTA0NzU5ODQ3LCJlbWFpbCI6ImNhb2ppYXl1QDE2My5jb20ifQ.JM8K_md1yshU-7Z2slqhlEpe7u99AAnfvRdT0TFqiCw&quot;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>拿到token后，请求其他url时，在headers中加上该token：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&quot;Authorization&quot;: &quot;JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImNhb2ppYXl1IiwiZXhwIjoxNTA0NzU5ODQ3LCJlbWFpbCI6ImNhb2ppYXl1QDE2My5jb20ifQ.JM8K_md1yshU-7Z2slqhlEpe7u99AAnfvRdT0TFqiCw&quot;</div></pre></td></tr></table></figure></p>
+<p>注意这里是JWT开头，和drf自带的Token开头有区别。</p>
+<h3 id="6、如何在serializers-py中定义非models字段？"><a href="#6、如何在serializers-py中定义非models字段？" class="headerlink" title="6、如何在serializers.py中定义非models字段？"></a>6、如何在serializers.py中定义非models字段？</h3><h4 id="解决办法-4"><a href="#解决办法-4" class="headerlink" title="解决办法"></a>解决办法</h4><p>这是permission的serialiser：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">class PermissionSerializer(serializers.ModelSerializer):</div><div class="line">    class Meta:</div><div class="line">        model = Permission</div><div class="line">        fields = (&apos;id&apos;, &apos;user_id&apos;, &apos;hub_sn&apos;)</div><div class="line"></div><div class="line">    user_id = serializers.IntegerField(required=True)</div><div class="line">    hub_sn = serializers.CharField(required=True)</div></pre></td></tr></table></figure></p>
+<p>比如现在我想在user的serializer中需要添加permission这个字段，但permission不在user表中：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">class UserSerializer(serializers.ModelSerializer):</div><div class="line">    class Meta:</div><div class="line">        model = User</div><div class="line">        fields = (&apos;id&apos;, &apos;username&apos;, &apos;password&apos;, &apos;is_superuser&apos;, &apos;mobile&apos;, &apos;email&apos;, &apos;is_active&apos;, &apos;permission&apos;)</div><div class="line"></div><div class="line">	...</div><div class="line">	...</div><div class="line">    permission = serializers.SerializerMethodField() # 使用SerializerMethodField()类型</div></pre></td></tr></table></figure></p>
+<p>可以使用参数method=’xxx’，也可以不用，默认是get_加上字段名，比如这里就是get_permission。</p>
+<p>然后在下面实现get_permission：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">def get_permission(self, instance):</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    获取用户权限，与用户信息一同返回</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    return PermissionSerializer(instance.permission, many=True).data</div></pre></td></tr></table></figure></p>
+<p>就可以把permission同user一起返回了。</p>
+<p>显示如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  &quot;id&quot;: 1,</div><div class="line">  &quot;username&quot;: &quot;caojiayu&quot;,</div><div class="line">  &quot;is_superuser&quot;: true,</div><div class="line">  &quot;mobile&quot;: &quot;18605237059&quot;,</div><div class="line">  &quot;email&quot;: &quot;caojiayu@163.com&quot;,</div><div class="line">  &quot;is_active&quot;: true,</div><div class="line">  &quot;permission&quot;: [</div><div class="line">    &#123;</div><div class="line">      &quot;id&quot;: 1,</div><div class="line">      &quot;user_id&quot;: 1,</div><div class="line">      &quot;hub_sn&quot;: &quot;AA201611050954&quot;</div><div class="line">    &#125;,</div><div class="line">    &#123;</div><div class="line">      &quot;id&quot;: 2,</div><div class="line">      &quot;user_id&quot;: 1,</div><div class="line">      &quot;hub_sn&quot;: &quot;201554124564&quot;</div><div class="line">    &#125;</div><div class="line">  ]</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="7、如何在serializer中自定义validator-验证字段有效性"><a href="#7、如何在serializer中自定义validator-验证字段有效性" class="headerlink" title="7、如何在serializer中自定义validator(验证字段有效性)"></a>7、如何在serializer中自定义validator(验证字段有效性)</h3><h4 id="解决办法-5"><a href="#解决办法-5" class="headerlink" title="解决办法"></a>解决办法</h4><p>在serializers.py中自定义一个validate_xxx(self, value)的方法，xxx是需要验证的字段名：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">LampSerializer</span><span class="params">(serializers.ModelSerializer)</span>:</span></div><div class="line"></div><div class="line">    <span class="class"><span class="keyword">class</span> <span class="title">Meta</span>:</span></div><div class="line">        model = Lamp</div><div class="line">        fields = (<span class="string">'sn'</span>, <span class="string">'status'</span>, <span class="string">'type'</span>, <span class="string">'hub_sn'</span>)</div><div class="line"></div><div class="line">    hub_sn = serializers.CharField(max_length=<span class="number">16</span>, required=<span class="keyword">True</span>)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">validate_hub_sn</span><span class="params">(self, value)</span>:</span></div><div class="line">        <span class="string">"""</span></div><div class="line">        验证hub_sn是否有效</div><div class="line">        """</div><div class="line">        hub_sn = value</div><div class="line">        hub_sn_exist = <span class="keyword">False</span></div><div class="line">        <span class="keyword">for</span> hub <span class="keyword">in</span> Hub.objects.all().filter(is_deleted=<span class="keyword">False</span>):</div><div class="line">            <span class="keyword">if</span> hub_sn == hub.sn:</div><div class="line">                hub_sn_exist = <span class="keyword">True</span></div><div class="line"></div><div class="line">        <span class="keyword">if</span> <span class="keyword">not</span> hub_sn_exist:</div><div class="line">            <span class="keyword">raise</span> serializers.ValidationError(<span class="string">"The provided hub sn is invalid."</span>)</div><div class="line"></div><div class="line">        <span class="keyword">return</span> value</div></pre></td></tr></table></figure></p>
+<!--more-->  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Django-Rest-Framework/">Django Rest Framework</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Django-Rest-Framework/">Django Rest Framework</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	<div class="share-jiathis">
+	  
+<div class="jiathis_style_24x24">
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_googleplus"></a>
+	<a class="jiathis_button_douban"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=2126358
+2126358" charset="utf-8"></script>      
+
+	 </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2017/09/13/Django-REST-framework遇到的问题-一/"  title="Django REST framework遇到的问题(一)">
+ <strong>下一篇：</strong><br/> 
+ <span>Django REST framework遇到的问题(一)
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2017/09/13/Django-REST-framework遇到的问题-二/" data-title="Django REST framework遇到的问题(二)" data-url="http://yoursite.com/2017/09/13/Django-REST-framework遇到的问题-二/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、各种viewset和mixin有什么区别？"><span class="toc-number">1.</span> <span class="toc-text">1、各种viewset和mixin有什么区别？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#解答"><span class="toc-number">1.1.</span> <span class="toc-text">解答</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、如何自定义django-filter？"><span class="toc-number">2.</span> <span class="toc-text">2、如何自定义django-filter？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法"><span class="toc-number">2.1.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、如何实现token认证"><span class="toc-number">3.</span> <span class="toc-text">3、如何实现token认证</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-1"><span class="toc-number">3.1.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4、默认token是全局的，如何实现局部？"><span class="toc-number">4.</span> <span class="toc-text">4、默认token是全局的，如何实现局部？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-2"><span class="toc-number">4.1.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5、实现JWT用户认证"><span class="toc-number">5.</span> <span class="toc-text">5、实现JWT用户认证</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-3"><span class="toc-number">5.1.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6、如何在serializers-py中定义非models字段？"><span class="toc-number">6.</span> <span class="toc-text">6、如何在serializers.py中定义非models字段？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-4"><span class="toc-number">6.1.</span> <span class="toc-text">解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7、如何在serializer中自定义validator-验证字段有效性"><span class="toc-number">7.</span> <span class="toc-text">7、如何在serializer中自定义validator(验证字段有效性)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#解决办法-5"><span class="toc-number">7.1.</span> <span class="toc-text">解决办法</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Django-Rest-Framework/" title="Django Rest Framework">Django Rest Framework<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Hexo/" title="Hexo">Hexo<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Redis/" title="Redis">Redis<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Django/" title="Django">Django<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/RBD-Mirror/" title="RBD-Mirror">RBD-Mirror<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/callback/" title="callback">callback<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Ansible/" title="Ansible">Ansible<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Virtualenv/" title="Virtualenv">Virtualenv<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/通信机制/" title="通信机制">通信机制<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/REST/" title="REST">REST<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/websocket/" title="websocket">websocket<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/互联网协议/" title="互联网协议">互联网协议<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/补码/" title="补码">补码<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Ceph/" title="Ceph">Ceph<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Django-Rest-Framework/" title="Django Rest Framework">Django Rest Framework<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python学习之路/" title="Python学习之路">Python学习之路<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Python部落刷题宝/" title="Python部落刷题宝">Python部落刷题宝<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Web知识/" title="Web知识">Web知识<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/博客搭建/" title="博客搭建">博客搭建<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/网络编程/" title="网络编程">网络编程<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/被解放的Django/" title="被解放的Django">被解放的Django<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/计算机基础/" title="计算机基础">计算机基础<sup>2</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+	<iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=0&isWeibo=0&isFans=0&uid=2826271411&verifier=e270a789&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Gocjy <br/>
+			人类的悲欢并不相通，我只觉得他们吵闹。</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2826271411" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="曹嘉宇">曹嘉宇</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"chown-jane-y"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
